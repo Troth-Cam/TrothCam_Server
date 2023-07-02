@@ -1,4 +1,4 @@
-package trothly.trothcam.feign.util;
+package trothly.trothcam.auth.apple.util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

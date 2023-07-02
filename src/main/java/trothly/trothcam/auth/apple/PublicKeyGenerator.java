@@ -1,4 +1,4 @@
-package trothly.trothcam.feign;
+package trothly.trothcam.auth.apple;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;

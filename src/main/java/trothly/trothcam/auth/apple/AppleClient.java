@@ -1,4 +1,4 @@
-package trothly.trothcam.feign;
+package trothly.trothcam.auth.apple;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

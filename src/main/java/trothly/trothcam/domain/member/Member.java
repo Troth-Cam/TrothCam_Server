@@ -24,7 +24,7 @@ public class Member extends BaseTimeEntity {
     @Column(name = "email", length = 255, nullable = false)
     private String email;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = true)
     private String name;
 
     @Column(name = "imaage", length = 255, nullable = true)
@@ -41,12 +41,15 @@ public class Member extends BaseTimeEntity {
     private LocalDateTime refreshTokenExpiresAt;
 
     @Builder
-    private Member(String email, String name, String image, Provider provider) {
+    private Member(String email, Provider provider) {
         this.email = email;
-        this.name = name;
-        this.image = image;
         this.provider = provider;
         this.refreshToken = "";
+        this.refreshTokenExpiresAt = LocalDateTime.now();
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
         this.refreshTokenExpiresAt = LocalDateTime.now();
     }
 }

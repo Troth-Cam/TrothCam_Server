@@ -1,4 +1,4 @@
-package trothly.trothcam.feign;
+package trothly.trothcam.auth.apple;
 
 import io.jsonwebtoken.Claims;
 
