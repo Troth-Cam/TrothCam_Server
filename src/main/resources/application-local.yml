@@ -23,3 +23,8 @@ spring:
       on-profile: local
 #    import:
 #      application-secret.yml
+
+oauth:
+  apple:
+    iss: ${APPLE_ISSUE}
+    client-id: ${APPLE_BUNDLE_ID}
