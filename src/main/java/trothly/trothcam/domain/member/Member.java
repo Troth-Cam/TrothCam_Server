@@ -27,7 +27,7 @@ public class Member extends BaseTimeEntity {
     @Column(name = "name", nullable = true)
     private String name;
 
-    @Column(name = "imaage", length = 255, nullable = true)
+    @Column(name = "image", length = 255, nullable = true)
     private String image;
 
     @Column(name = "provider", nullable = false)
