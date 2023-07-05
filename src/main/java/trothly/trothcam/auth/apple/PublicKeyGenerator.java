@@ -1,5 +1,6 @@
 package trothly.trothcam.auth.apple;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import trothly.trothcam.dto.auth.apple.ApplePublicKey;
@@ -13,6 +14,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class PublicKeyGenerator {
 
@@ -25,6 +27,7 @@ public class PublicKeyGenerator {
         ApplePublicKey applePublicKey =
                 applePublicKeys.getMatchesKey(headers.get(SIGN_ALGORITHM_HEADER_KEY), headers.get(KEY_ID_HEADER_KEY));
 
+        log.info("publickey : " + generatePublicKeyWithApplePublicKey(applePublicKey).toString());
         return generatePublicKeyWithApplePublicKey(applePublicKey);
     }
 

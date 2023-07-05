@@ -3,6 +3,7 @@ package trothly.trothcam.auth.apple;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import trothly.trothcam.exception.custom.InvalidTokenException;
@@ -11,6 +12,7 @@ import trothly.trothcam.exception.custom.TokenExpiredException;
 import java.security.PublicKey;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class AppleJwtParser {
 

@@ -14,14 +14,26 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         default_batch_fetch_size: 1000
-#  redis:
+    show-sql: true
+
+  #  redis:
 #    host: localhost
 #    port: 6379
 
   config:
     activate:
       on-profile: local
-    import:
-      application-secret.yml
+#    import:
+#      application-secret.yml
+
+oauth:
+  apple:
+    iss: ${APPLE_ISSUE}
+    client-id: ${APPLE_BUNDLE_ID}
+
+jwt:
+  secret: ${JWT_SECRET}
+
+
 
 

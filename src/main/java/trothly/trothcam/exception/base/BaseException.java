@@ -1,4 +1,4 @@
-package trothly.trothcam.exception.custom.base;
+package trothly.trothcam.exception.base;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
