@@ -1,4 +1,4 @@
-package trothly.trothcam.exception.custom.base;
+package trothly.trothcam.exception.base;
 
 import lombok.Getter;
 
@@ -21,6 +21,7 @@ public enum BaseResponseStatus {
     EMPTY_JWT(false, 2001, "JWT를 입력해주세요."),
     INVALID_JWT(false, 2002, "유효하지 않은 JWT입니다."),
     INVALID_USER_JWT(false,2003,"권한이 없는 유저의 접근입니다."),
+    NOT_AGREE_EMAIL(false, 2004, "이메일 동의가 거부되었습니다."),
 
 
     /**

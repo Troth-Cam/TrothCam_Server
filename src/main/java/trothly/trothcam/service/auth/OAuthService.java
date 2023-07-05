@@ -7,9 +7,12 @@ import org.springframework.stereotype.Service;
 import trothly.trothcam.dto.auth.TokenDto;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
 import trothly.trothcam.dto.auth.apple.LoginResDto;
+import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
+import trothly.trothcam.exception.base.*;
 import trothly.trothcam.exception.custom.InvalidProviderException;
 import trothly.trothcam.auth.apple.AppleOAuthUserProvider;
 import trothly.trothcam.domain.member.*;
+import trothly.trothcam.exception.custom.InvalidTokenException;
 import trothly.trothcam.service.JwtService;
 
 import java.util.Optional;
@@ -25,16 +28,20 @@ public class OAuthService {
 
 
     // 애플 로그인
-    public LoginResDto appleLogin(LoginReqDto loginReqDto) {
+    public LoginResDto appleLogin(LoginReqDto loginReqDto) throws BaseException {
         // identity token으로 email값 얻어오기
         String email = appleOAuthUserProvider.getEmailFromToken(loginReqDto.getIdToken());
         logger.info("Apple Login Request Email : " + email);
+
+        // email이 null인 경우 : email 동의 안한 경우!!!!
+        if(email == null)
+            throw new BaseException(BaseResponseStatus.NOT_AGREE_EMAIL);
 
         Optional<Member> getMember = memberRepository.findByEmail(email);
         Member member;
         if(getMember.isPresent()){  // 이미 회원가입한 회원인 경우
             member = getMember.get();
-            if(!member.getProvider().equals("APPLE"))   // 이미 회원가입했지만 APPLE이 아닌 다른 소셜 로그인 사용
+            if(!member.getProvider().equals(Provider.APPLE))   // 이미 회원가입했지만 APPLE이 아닌 다른 소셜 로그인 사용
                 throw new InvalidProviderException("GOOGLE로 회원가입한 회원입니다.");
         } else {    // 아직 회원가입 하지 않은 회원인 경우
             member = memberRepository.save(
@@ -56,5 +63,24 @@ public class OAuthService {
         memberRepository.save(member);
 
         return new LoginResDto(newAccessToken, newRefreshToken);
+    }
+
+    // refreshToken으로 accessToken 발급하기
+    public LoginResDto regenerateAccessToken(RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
+        Long memberId = refreshTokenReqDto.getMemberId();
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당되는 member_id를 찾을 수 없습니다."));
+
+        String refreshToken = refreshTokenReqDto.getRefreshToken();
+        if(refreshToken.equals(member.getRefreshToken()))
+            throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
+
+        String newRefreshToken = jwtService.encodeJwtRefreshToken(memberId);
+        String newAcessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
+
+        member.updateRefreshToken(newRefreshToken);
+        memberRepository.save(member);
+
+        return new LoginResDto(newAcessToken, newRefreshToken);
     }
 }
