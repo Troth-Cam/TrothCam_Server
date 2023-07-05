@@ -3,6 +3,8 @@ package trothly.trothcam.service.auth;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import trothly.trothcam.dto.auth.TokenDto;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
@@ -16,6 +18,7 @@ import trothly.trothcam.exception.custom.InvalidTokenException;
 import trothly.trothcam.service.JwtService;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class OAuthService {
     private final AppleOAuthUserProvider appleOAuthUserProvider;
 
     private final MemberRepository memberRepository;
+    private final RedisTemplate<String, String> redisTemplate;
     private final JwtService jwtService;
 
 
@@ -59,28 +63,36 @@ public class OAuthService {
         logger.info("accessToken : " + newAccessToken);
         logger.info("refreshToken : " + newRefreshToken);
 
-        member.updateRefreshToken(newRefreshToken);
-        memberRepository.save(member);
+        // redis에 refreshToken 저장
+        try {
+            redisTemplate.opsForValue().set(newRefreshToken, member.getId().toString(), 14L, TimeUnit.SECONDS);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
 
+        // Redis에 저장 (key: userId, value: refreshToken)
         return new LoginResDto(newAccessToken, newRefreshToken);
     }
 
     // refreshToken으로 accessToken 발급하기
     public LoginResDto regenerateAccessToken(RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
         Long memberId = refreshTokenReqDto.getMemberId();
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당되는 member_id를 찾을 수 없습니다."));
 
-        String refreshToken = refreshTokenReqDto.getRefreshToken();
-        if(refreshToken.equals(member.getRefreshToken()))
+        String getRefreshToken = refreshTokenReqDto.getRefreshToken();
+        String redisRefreshToken = redisTemplate.opsForValue().get(memberId.toString());
+
+        if(getRefreshToken.equals(redisRefreshToken))
             throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
 
         String newRefreshToken = jwtService.encodeJwtRefreshToken(memberId);
         String newAcessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
 
-        member.updateRefreshToken(newRefreshToken);
-        memberRepository.save(member);
-
+        try {
+            redisTemplate.opsForValue().set(newRefreshToken, memberId.toString(), 14L, TimeUnit.SECONDS);
+            logger.info("성공");
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
         return new LoginResDto(newAcessToken, newRefreshToken);
     }
 }
