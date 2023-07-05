@@ -26,8 +26,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtExceptionFilter jwtExceptionFilter;
 
     @Override
-    public void configure(WebSecurity web)  {
-        web.ignoring().antMatchers("/login/**", "/health-check/**");
+    public void configure(WebSecurity web) {
+        // 로그인 개발 끝나면 "/**" 경로에서 삭제
+        web.ignoring().antMatchers("/login/**", "/health-check/**", "/**");
     }
 
     @Override
@@ -43,6 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/login/**").permitAll()
                 .antMatchers("/health-check/**").permitAll()
+                .antMatchers("/**").permitAll()     // 로그인 개발 끝나면 삭제
                 .anyRequest().authenticated()
                 .and()
 //                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

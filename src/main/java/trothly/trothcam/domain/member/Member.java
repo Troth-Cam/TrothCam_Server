@@ -34,9 +34,22 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Provider provider;
 
+    @Column(name = "refresh_token", nullable = false)
+    private String refreshToken;
+
+    @Column(name = "refresh_token_expires_at", nullable = false)
+    private LocalDateTime refreshTokenExpiresAt;
+
     @Builder
     private Member(String email, Provider provider) {
         this.email = email;
         this.provider = provider;
+        this.refreshToken = "";
+        this.refreshTokenExpiresAt = LocalDateTime.now();
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+        this.refreshTokenExpiresAt = LocalDateTime.now();
     }
 }
