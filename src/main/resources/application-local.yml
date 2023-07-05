@@ -31,3 +31,7 @@ oauth:
 
 jwt:
   secret: ${JWT_SECRET}
+
+
+
+
