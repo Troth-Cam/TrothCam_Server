@@ -42,13 +42,13 @@ public class JwtService {
                 .compact();
     }
 
-    public String encodeJwtRefreshToken(Long userAccountId) {
+    public String encodeJwtRefreshToken(Long memberId) {
         Date now = new Date();
         return Jwts.builder()
                 .setIssuedAt(now)
-                .setSubject(userAccountId.toString())
+                .setSubject(memberId.toString())
                 .setExpiration(new Date(now.getTime() + Duration.ofMinutes(20160).toMillis()))
-                .claim("userAccountId", userAccountId)
+                .claim("memberId", memberId)
                 .claim("roles", "USER")
                 .signWith(SignatureAlgorithm.HS256,
                         Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
@@ -56,6 +56,7 @@ public class JwtService {
                 .compact();
     }
 
+    // JWT 토큰으로부터 memberId 추출
     public Long getMemberIdFromJwtToken(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(

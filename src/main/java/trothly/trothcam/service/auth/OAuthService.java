@@ -52,7 +52,9 @@ public class OAuthService {
         logger.info("accessToken : " + newAccessToken);
         logger.info("refreshToken : " + newRefreshToken);
 
+        member.updateRefreshToken(newRefreshToken);
         memberRepository.save(member);
+
         return new LoginResDto(newAccessToken, newRefreshToken);
     }
 }
