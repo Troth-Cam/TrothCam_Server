@@ -14,8 +14,8 @@ import trothly.trothcam.service.JwtService;
 
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class OAuthService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final AppleOAuthUserProvider appleOAuthUserProvider;
