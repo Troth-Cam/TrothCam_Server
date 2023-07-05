@@ -27,7 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web)  {
-        web.ignoring().antMatchers("/login/**" );
+        web.ignoring().antMatchers("/login/**", "/health-check/**");
     }
 
     @Override
@@ -42,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilter(new JwtAuthenticationFilter(authenticationManager(),jwtService))
                 .authorizeRequests()
                 .antMatchers("/login/**").permitAll()
-                //.antMatchers("/**").permitAll()
+                .antMatchers("/health-check/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
 //                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
