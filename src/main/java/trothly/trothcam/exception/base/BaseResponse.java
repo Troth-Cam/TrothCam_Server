@@ -1,4 +1,4 @@
-package trothly.trothcam.exception.custom.base;
+package trothly.trothcam.exception.base;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import static trothly.trothcam.exception.custom.base.BaseResponseStatus.SUCCESS;
+import static trothly.trothcam.exception.base.BaseResponseStatus.SUCCESS;
 
 
 @Getter

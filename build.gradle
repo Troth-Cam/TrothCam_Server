@@ -51,6 +51,10 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 
+	// Gson 라이브러리로1 Json 파싱
+	implementation 'org.jsoup:jsoup:1.14.2'
+	implementation 'com.google.code.gson:gson:2.8.7'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
