@@ -8,9 +8,13 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableRedisRepositories
+@EnableTransactionManagement
 public class RedisConfig {
 
     @Value("${spring.redis.host}")
@@ -36,6 +40,14 @@ public class RedisConfig {
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         redisTemplate.setConnectionFactory(redisConnectionFactory());
 
+        // redis Transaction 유지를 위해 추가
+        redisTemplate.setEnableTransactionSupport(true);
+
         return redisTemplate;
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager() { // <=
+        return new JpaTransactionManager(); // <=
     }
 }
