@@ -11,10 +11,6 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshTokenReqDto {
     @NotNull
-    @JsonProperty("member_id")
-    private Long memberId;
-
-    @NotNull
     @JsonProperty("refresh_token")
     private String refreshToken;
 }

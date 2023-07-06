@@ -1,6 +1,7 @@
 package trothly.trothcam.service.auth;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -17,9 +18,11 @@ import trothly.trothcam.domain.member.*;
 import trothly.trothcam.exception.custom.InvalidTokenException;
 import trothly.trothcam.service.JwtService;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
@@ -32,14 +35,14 @@ public class OAuthService {
 
 
     // 애플 로그인
+    @Transactional
     public LoginResDto appleLogin(LoginReqDto loginReqDto) throws BaseException {
         // identity token으로 email값 얻어오기
         String email = appleOAuthUserProvider.getEmailFromToken(loginReqDto.getIdToken());
-        logger.info("Apple Login Request Email : " + email);
 
-        // email이 null인 경우 : email 동의 안한 경우!!!!
+        // email이 null인 경우 : email 동의 안한 경우
         if(email == null)
-            throw new BaseException(BaseResponseStatus.NOT_AGREE_EMAIL);
+            throw new BaseException(ErrorCode.NOT_AGREE_EMAIL);
 
         Optional<Member> getMember = memberRepository.findByEmail(email);
         Member member;
@@ -60,39 +63,31 @@ public class OAuthService {
         String newAccessToken = jwtService.encodeJwtToken(new TokenDto(member.getId()));
         String newRefreshToken = jwtService.encodeJwtRefreshToken(member.getId());
 
-        logger.info("accessToken : " + newAccessToken);
-        logger.info("refreshToken : " + newRefreshToken);
-
         // redis에 refreshToken 저장
-        try {
-            redisTemplate.opsForValue().set(newRefreshToken, member.getId().toString(), 14L, TimeUnit.SECONDS);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        redisTemplate.opsForValue().set(member.getId().toString(), newRefreshToken, 14L, TimeUnit.SECONDS);
+        log.info("redis에 저장된 refreshToken : " + newRefreshToken + "\nmember.getId : " + member.getId().toString());
 
-        // Redis에 저장 (key: userId, value: refreshToken)
         return new LoginResDto(newAccessToken, newRefreshToken);
     }
 
     // refreshToken으로 accessToken 발급하기
+    @Transactional
     public LoginResDto regenerateAccessToken(RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
-        Long memberId = refreshTokenReqDto.getMemberId();
-
         String getRefreshToken = refreshTokenReqDto.getRefreshToken();
-        String redisRefreshToken = redisTemplate.opsForValue().get(memberId.toString());
+        Long memberId = jwtService.getMemberIdFromJwtToken(getRefreshToken);
 
-        if(getRefreshToken.equals(redisRefreshToken))
+        String redisRefreshToken = redisTemplate.opsForValue().get(memberId.toString());
+        log.info("getRefreshToken : " + getRefreshToken);
+        log.info("redisRefreshToken : " + redisRefreshToken);   // 요 부분이 값이 있었다가 null로 떴다가 그래
+
+        if(!getRefreshToken.equals(redisRefreshToken))
             throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
 
+        String newAccessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
         String newRefreshToken = jwtService.encodeJwtRefreshToken(memberId);
-        String newAcessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
 
-        try {
-            redisTemplate.opsForValue().set(newRefreshToken, memberId.toString(), 14L, TimeUnit.SECONDS);
-            logger.info("성공");
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return new LoginResDto(newAcessToken, newRefreshToken);
+        redisTemplate.opsForValue().set(memberId.toString(), newRefreshToken, 14L, TimeUnit.SECONDS);
+
+        return new LoginResDto(newAccessToken, newRefreshToken);
     }
 }
