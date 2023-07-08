@@ -23,37 +23,37 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
         this.jwtService = jwtService;
     }
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String token = jwtService.getToken((HttpServletRequest) request);
-        String refreshToken = jwtService.getRefreshToken(request);
-        // 토큰이 존재한다면
-        if (token != null) {
-            // 토큰을 검증
-            if (jwtService.validateToken(token)) {
-                //권한
-                Authentication authentication = jwtService.getAuthentication(token);
-
-                // security 세션에 등록
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                throw new UnauthorizedException("유효한 토큰값이 아닙니다.");
-            }
-
-        }else if(refreshToken!=null){
-
-            if(jwtService.validateRefreshToken(refreshToken)){
-                //권한
-                Authentication authentication = jwtService.getAuthentication(refreshToken);
-
-                // security 세션에 등록
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }else{
-                throw new UnauthorizedException("유효하지 않은 Refresh Token 입니다.");
-            }
-        }else{
-            throw new BadRequestException("존재하지 않는 토큰입니다.");
-        }
-        chain.doFilter(request, response);
-    }
+//    @Override
+//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+//        String token = jwtService.getToken((HttpServletRequest) request);
+//        String refreshToken = jwtService.getRefreshToken(request);
+//        // 토큰이 존재한다면
+//        if (token != null) {
+//            // 토큰을 검증
+//            if (jwtService.validateToken(token)) {
+//                //권한
+//                Authentication authentication = jwtService.getAuthentication(token);
+//
+//                // security 세션에 등록
+//                SecurityContextHolder.getContext().setAuthentication(authentication);
+//            } else {
+//                throw new UnauthorizedException("유효한 토큰값이 아닙니다.");
+//            }
+//
+//        }else if(refreshToken!=null){
+//
+//            if(jwtService.validateRefreshToken(refreshToken)){
+//                //권한
+//                Authentication authentication = jwtService.getAuthentication(refreshToken);
+//
+//                // security 세션에 등록
+//                SecurityContextHolder.getContext().setAuthentication(authentication);
+//            }else{
+//                throw new UnauthorizedException("유효하지 않은 Refresh Token 입니다.");
+//            }
+//        }else{
+//            throw new BadRequestException("존재하지 않는 토큰입니다.");
+//        }
+//        chain.doFilter(request, response);
+//    }
 }

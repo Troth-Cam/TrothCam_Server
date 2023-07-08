@@ -41,11 +41,11 @@ public class OAuthController {
     }
 
     // refreshToken으로 accessToken 재발급
-    @PostMapping("/refresh")
-    public BaseResponse<LoginResDto> regenerateAccessToken(@RequestBody @Validated RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
-        LoginResDto result = oauthService.regenerateAccessToken(refreshTokenReqDto);
-        return BaseResponse.onSuccess(result);
-    }
+//    @PostMapping("/refresh")
+//    public BaseResponse<LoginResDto> regenerateAccessToken(@RequestBody @Validated RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
+//        LoginResDto result = oauthService.regenerateAccessToken(refreshTokenReqDto);
+//        return BaseResponse.onSuccess(result);
+//    }
 
     // 구글 로그인
 }
