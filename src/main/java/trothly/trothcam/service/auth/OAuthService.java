@@ -4,18 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
-import org.springframework.data.redis.core.RedisTemplate;
+//import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import trothly.trothcam.dto.auth.TokenDto;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
 import trothly.trothcam.dto.auth.apple.LoginResDto;
-import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
+//import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
 import trothly.trothcam.exception.base.*;
 import trothly.trothcam.exception.custom.InvalidProviderException;
 import trothly.trothcam.auth.apple.AppleOAuthUserProvider;
 import trothly.trothcam.domain.member.*;
-import trothly.trothcam.exception.custom.InvalidTokenException;
+//import trothly.trothcam.exception.custom.InvalidTokenException;
 import trothly.trothcam.service.JwtService;
 
 import javax.transaction.Transactional;
@@ -30,7 +29,7 @@ public class OAuthService {
     private final AppleOAuthUserProvider appleOAuthUserProvider;
 
     private final MemberRepository memberRepository;
-    private final RedisTemplate<String, String> redisTemplate;
+//    private final RedisTemplate<String, String> redisTemplate;
     private final JwtService jwtService;
 
 
@@ -64,30 +63,30 @@ public class OAuthService {
         String newRefreshToken = jwtService.encodeJwtRefreshToken(member.getId());
 
         // redis에 refreshToken 저장
-        redisTemplate.opsForValue().set(member.getId().toString(), newRefreshToken, 14L, TimeUnit.SECONDS);
-        log.info("redis에 저장된 refreshToken : " + newRefreshToken + "\nmember.getId : " + member.getId().toString());
+//        redisTemplate.opsForValue().set(member.getId().toString(), newRefreshToken, 14L, TimeUnit.SECONDS);
+//        log.info("redis에 저장된 refreshToken : " + newRefreshToken + "\nmember.getId : " + member.getId().toString());
 
         return new LoginResDto(newAccessToken, newRefreshToken);
     }
 
     // refreshToken으로 accessToken 발급하기
-    @Transactional
-    public LoginResDto regenerateAccessToken(RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
-        String getRefreshToken = refreshTokenReqDto.getRefreshToken();
-        Long memberId = jwtService.getMemberIdFromJwtToken(getRefreshToken);
-
-        String redisRefreshToken = redisTemplate.opsForValue().get(memberId.toString());
-        log.info("getRefreshToken : " + getRefreshToken);
-        log.info("redisRefreshToken : " + redisRefreshToken);   // 요 부분이 값이 있었다가 null로 떴다가 그래
-
-        if(!getRefreshToken.equals(redisRefreshToken))
-            throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
-
-        String newAccessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
-        String newRefreshToken = jwtService.encodeJwtRefreshToken(memberId);
-
-        redisTemplate.opsForValue().set(memberId.toString(), newRefreshToken, 14L, TimeUnit.SECONDS);
-
-        return new LoginResDto(newAccessToken, newRefreshToken);
-    }
+//    @Transactional
+//    public LoginResDto regenerateAccessToken(RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
+//        String getRefreshToken = refreshTokenReqDto.getRefreshToken();
+//        Long memberId = jwtService.getMemberIdFromJwtToken(getRefreshToken);
+//
+//        String redisRefreshToken = redisTemplate.opsForValue().get(memberId.toString());
+//        log.info("getRefreshToken : " + getRefreshToken);
+//        log.info("redisRefreshToken : " + redisRefreshToken);   // 요 부분이 값이 있었다가 null로 떴다가 그래
+//
+//        if(!getRefreshToken.equals(redisRefreshToken))
+//            throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
+//
+//        String newAccessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
+//        String newRefreshToken = jwtService.encodeJwtRefreshToken(memberId);
+//
+//        redisTemplate.opsForValue().set(memberId.toString(), newRefreshToken, 14L, TimeUnit.SECONDS);
+//
+//        return new LoginResDto(newAccessToken, newRefreshToken);
+//    }
 }
