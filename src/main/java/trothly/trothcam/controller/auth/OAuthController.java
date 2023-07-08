@@ -46,4 +46,6 @@ public class OAuthController {
         LoginResDto result = oauthService.regenerateAccessToken(refreshTokenReqDto);
         return BaseResponse.onSuccess(result);
     }
+
+    // 구글 로그인
 }
