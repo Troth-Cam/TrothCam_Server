@@ -3,6 +3,7 @@ package trothly.trothcam.service;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,7 @@ public class JwtService {
 
     @Value("${jwt.secret}")
     private String JWT_SECRET;
+    private final RedisTemplate<String, String> redisTemplate;
     private final MemberRepository memberRepository;
 
     public String encodeJwtToken(TokenDto tokenDto) {
@@ -103,11 +105,9 @@ public class JwtService {
 
             // 유저 리프레쉬 토큰 확인
             Long memberId = getMemberIdFromJwtToken(token);
+            String redisRefreshToken = redisTemplate.opsForValue().get(memberId.toString());
 
-            Member member = memberRepository.findById(memberId)
-                    .orElseThrow(()-> new IllegalArgumentException("해당되는 사용자를 찾을 수 없습니다."));
-
-            if(member.getRefreshToken().equals(token)){
+            if(redisRefreshToken.equals(token)){
                 return true;
             }
             return false;

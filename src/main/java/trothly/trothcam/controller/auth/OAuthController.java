@@ -3,6 +3,7 @@ package trothly.trothcam.controller.auth;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
@@ -32,27 +33,19 @@ public class OAuthController {
         // BindingResult = 검증 오류가 발생할 경우 오류 내용을 보관하는 객체
         if(bindingResult.hasErrors()) {
             ObjectError objectError = bindingResult.getAllErrors().stream().findFirst().get();
-            return new BaseResponse<>(400, objectError.getDefaultMessage(), null);
+            return BaseResponse.onFailure(400, objectError.getDefaultMessage(), null);
         }
 
-        try{
-            LoginResDto result = oauthService.appleLogin(loginReqDto);
-            return new BaseResponse<>(result);
-        } catch(BaseException e) {
-            e.printStackTrace();
-            return new BaseResponse<>(e.getStatus());
-        }
+        LoginResDto result = oauthService.appleLogin(loginReqDto);
+        return BaseResponse.onSuccess(result);
     }
 
     // refreshToken으로 accessToken 재발급
     @PostMapping("/refresh")
     public BaseResponse<LoginResDto> regenerateAccessToken(@RequestBody @Validated RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
-        try{
-            LoginResDto result = oauthService.regenerateAccessToken(refreshTokenReqDto);
-            return new BaseResponse<>(result);
-        } catch(BaseException e) {
-            e.printStackTrace();
-            return new BaseResponse<>(e.getStatus());
-        }
+        LoginResDto result = oauthService.regenerateAccessToken(refreshTokenReqDto);
+        return BaseResponse.onSuccess(result);
     }
+
+    // 구글 로그인
 }
