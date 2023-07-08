@@ -55,6 +55,9 @@ dependencies {
 	implementation 'org.jsoup:jsoup:1.14.2'
 	implementation 'com.google.code.gson:gson:2.8.7'
 
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'

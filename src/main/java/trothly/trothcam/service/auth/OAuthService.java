@@ -1,8 +1,11 @@
 package trothly.trothcam.service.auth;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import trothly.trothcam.dto.auth.TokenDto;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
@@ -15,8 +18,11 @@ import trothly.trothcam.domain.member.*;
 import trothly.trothcam.exception.custom.InvalidTokenException;
 import trothly.trothcam.service.JwtService;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
@@ -24,18 +30,19 @@ public class OAuthService {
     private final AppleOAuthUserProvider appleOAuthUserProvider;
 
     private final MemberRepository memberRepository;
+    private final RedisTemplate<String, String> redisTemplate;
     private final JwtService jwtService;
 
 
     // 애플 로그인
+    @Transactional
     public LoginResDto appleLogin(LoginReqDto loginReqDto) throws BaseException {
         // identity token으로 email값 얻어오기
         String email = appleOAuthUserProvider.getEmailFromToken(loginReqDto.getIdToken());
-        logger.info("Apple Login Request Email : " + email);
 
-        // email이 null인 경우 : email 동의 안한 경우!!!!
+        // email이 null인 경우 : email 동의 안한 경우
         if(email == null)
-            throw new BaseException(BaseResponseStatus.NOT_AGREE_EMAIL);
+            throw new BaseException(ErrorCode.NOT_AGREE_EMAIL);
 
         Optional<Member> getMember = memberRepository.findByEmail(email);
         Member member;
@@ -56,31 +63,31 @@ public class OAuthService {
         String newAccessToken = jwtService.encodeJwtToken(new TokenDto(member.getId()));
         String newRefreshToken = jwtService.encodeJwtRefreshToken(member.getId());
 
-        logger.info("accessToken : " + newAccessToken);
-        logger.info("refreshToken : " + newRefreshToken);
-
-        member.updateRefreshToken(newRefreshToken);
-        memberRepository.save(member);
+        // redis에 refreshToken 저장
+        redisTemplate.opsForValue().set(member.getId().toString(), newRefreshToken, 14L, TimeUnit.SECONDS);
+        log.info("redis에 저장된 refreshToken : " + newRefreshToken + "\nmember.getId : " + member.getId().toString());
 
         return new LoginResDto(newAccessToken, newRefreshToken);
     }
 
     // refreshToken으로 accessToken 발급하기
+    @Transactional
     public LoginResDto regenerateAccessToken(RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
-        Long memberId = refreshTokenReqDto.getMemberId();
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당되는 member_id를 찾을 수 없습니다."));
+        String getRefreshToken = refreshTokenReqDto.getRefreshToken();
+        Long memberId = jwtService.getMemberIdFromJwtToken(getRefreshToken);
 
-        String refreshToken = refreshTokenReqDto.getRefreshToken();
-        if(refreshToken.equals(member.getRefreshToken()))
+        String redisRefreshToken = redisTemplate.opsForValue().get(memberId.toString());
+        log.info("getRefreshToken : " + getRefreshToken);
+        log.info("redisRefreshToken : " + redisRefreshToken);   // 요 부분이 값이 있었다가 null로 떴다가 그래
+
+        if(!getRefreshToken.equals(redisRefreshToken))
             throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
 
+        String newAccessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
         String newRefreshToken = jwtService.encodeJwtRefreshToken(memberId);
-        String newAcessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
 
-        member.updateRefreshToken(newRefreshToken);
-        memberRepository.save(member);
+        redisTemplate.opsForValue().set(memberId.toString(), newRefreshToken, 14L, TimeUnit.SECONDS);
 
-        return new LoginResDto(newAcessToken, newRefreshToken);
+        return new LoginResDto(newAccessToken, newRefreshToken);
     }
 }
