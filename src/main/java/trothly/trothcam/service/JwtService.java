@@ -3,7 +3,7 @@ package trothly.trothcam.service;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
+//import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,7 +24,7 @@ public class JwtService {
 
     @Value("${jwt.secret}")
     private String JWT_SECRET;
-    private final RedisTemplate<String, String> redisTemplate;
+//    private final RedisTemplate<String, String> redisTemplate;
     private final MemberRepository memberRepository;
 
     public String encodeJwtToken(TokenDto tokenDto) {
@@ -94,27 +94,27 @@ public class JwtService {
         }
     }
 
-    public Boolean validateRefreshToken(String token) {
-        try {
-            Jws<Claims> claims = Jwts.parser()
-                    .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
-                            StandardCharsets.UTF_8))).parseClaimsJws(token);
-            if (claims.getBody().getExpiration().before(new Date())) {
-                throw new UnauthorizedException("만료된 토큰입니다.");
-            }
-
-            // 유저 리프레쉬 토큰 확인
-            Long memberId = getMemberIdFromJwtToken(token);
-            String redisRefreshToken = redisTemplate.opsForValue().get(memberId.toString());
-
-            if(redisRefreshToken.equals(token)){
-                return true;
-            }
-            return false;
-        } catch (Exception e) {
-            throw new UnauthorizedException("만료된 토큰입니다.");
-        }
-    }
+//    public Boolean validateRefreshToken(String token) {
+//        try {
+//            Jws<Claims> claims = Jwts.parser()
+//                    .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
+//                            StandardCharsets.UTF_8))).parseClaimsJws(token);
+//            if (claims.getBody().getExpiration().before(new Date())) {
+//                throw new UnauthorizedException("만료된 토큰입니다.");
+//            }
+//
+//            // 유저 리프레쉬 토큰 확인
+//            Long memberId = getMemberIdFromJwtToken(token);
+//            String redisRefreshToken = redisTemplate.opsForValue().get(memberId.toString());
+//
+//            if(redisRefreshToken.equals(token)){
+//                return true;
+//            }
+//            return false;
+//        } catch (Exception e) {
+//            throw new UnauthorizedException("만료된 토큰입니다.");
+//        }
+//    }
 
     // Header X-ACCESS-TOKEN으로 JWT 추출
     public String getToken(HttpServletRequest request) {
