@@ -49,11 +49,14 @@ public class OAuthController {
 //    }
 
     // 구글 로그인
+    // 사용자 로그인 페이지 제공 단계 - url
     @GetMapping(value="/auth/{socialLoginType}")
     public void socialLoginType(@PathVariable(name="socialLoginType") String socialLoginType) throws IOException {
         oauthService.request(socialLoginType);
     }
 
+    // code -> accessToken 받아오기
+    // accessToken -> 사용자 정보 받아오기
     @GetMapping(value="/auth/{socialLoginType}/callback")
     public void callback(
             @PathVariable(name="socialLoginType") String socialLoginType,
