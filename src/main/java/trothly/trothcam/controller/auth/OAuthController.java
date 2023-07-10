@@ -1,5 +1,6 @@
 package trothly.trothcam.controller.auth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,15 +8,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
 import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
 import trothly.trothcam.dto.auth.apple.LoginResDto;
 import trothly.trothcam.service.auth.OAuthService;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,4 +49,15 @@ public class OAuthController {
 //    }
 
     // 구글 로그인
+    @GetMapping(value="/auth/{socialLoginType}")
+    public void socialLoginType(@PathVariable(name="socialLoginType") String socialLoginType) throws IOException {
+        oauthService.request(socialLoginType);
+    }
+
+    @GetMapping(value="/auth/{socialLoginType}/callback")
+    public void callback(
+            @PathVariable(name="socialLoginType") String socialLoginType,
+            @RequestParam(name="code") String code) throws JsonProcessingException {
+        oauthService.oauthLogin(socialLoginType, code);
+    }
 }

@@ -1,15 +1,19 @@
 package trothly.trothcam.service.auth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 //import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import trothly.trothcam.dto.auth.TokenDto;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
 import trothly.trothcam.dto.auth.apple.LoginResDto;
 //import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
+import trothly.trothcam.dto.auth.google.GoogleOauthToken;
+import trothly.trothcam.dto.auth.google.GoogleUser;
 import trothly.trothcam.exception.base.*;
 import trothly.trothcam.exception.custom.InvalidProviderException;
 import trothly.trothcam.auth.apple.AppleOAuthUserProvider;
@@ -17,7 +21,9 @@ import trothly.trothcam.domain.member.*;
 //import trothly.trothcam.exception.custom.InvalidTokenException;
 import trothly.trothcam.service.JwtService;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +37,10 @@ public class OAuthService {
     private final MemberRepository memberRepository;
 //    private final RedisTemplate<String, String> redisTemplate;
     private final JwtService jwtService;
+
+    // 구글 로그인
+    private final GoogleOauth googleOauth;
+    private final HttpServletResponse response;
 
 
     // 애플 로그인
@@ -89,4 +99,26 @@ public class OAuthService {
 //
 //        return new LoginResDto(newAccessToken, newRefreshToken);
 //    }
+
+    // 구글 로그인
+    //1. request
+    public void request(String socialLoginType) throws IOException {
+        String redirectURL = googleOauth.getOauthRedirectURL();
+
+        response.sendRedirect(redirectURL);
+    }
+
+    public void oauthLogin(String socialLoginType, String code) throws JsonProcessingException {
+        //(1)구글로 일회성 코드를 보내 액세스 토큰이 담긴 응답객체를 받아옴
+        ResponseEntity<String> accessTokenResponse = googleOauth.requestAccessToken(code);
+
+        //응답 객체가 JSON형식으로 되어 있으므로, 이를 deserialization해서 자바 객체에 담을 것이다.
+        GoogleOauthToken oAuthToken = googleOauth.getAccessToken(accessTokenResponse);
+
+        //액세스 토큰을 다시 구글로 보내 구글에 저장된 사용자 정보가 담긴 응답 객체를 받아온다.
+        ResponseEntity<String> userInfoResponse = googleOauth.requestUserInfo(oAuthToken);
+        //다시 JSON 형식의 응답 객체를 자바 객체로 역직렬화한다.
+        GoogleUser googleUser = googleOauth.getUserInfo(userInfoResponse);
+
+    }
 }
