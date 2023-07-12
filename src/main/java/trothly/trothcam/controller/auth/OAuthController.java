@@ -14,12 +14,16 @@ import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
 import trothly.trothcam.dto.auth.apple.LoginResDto;
+import trothly.trothcam.exception.base.ErrorCode;
 import trothly.trothcam.service.auth.OAuthService;
 
 import java.io.IOException;
 
+import static trothly.trothcam.exception.base.ErrorCode.REQUEST_ERROR;
+
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/auth")
 public class OAuthController {
     // H2 : http://localhost:8080/h2-console
 
@@ -27,10 +31,8 @@ public class OAuthController {
     private final OAuthService oauthService;
 
     // 애플 로그인
-    @PostMapping("/login/apple")
-    public BaseResponse<LoginResDto> appleLogin(@RequestBody @Validated LoginReqDto loginReqDto, BindingResult bindingResult) throws Exception {
-        logger.info("loginReqDto : " + loginReqDto.getIdToken());
-
+    @PostMapping("/{socialLoginType}")
+    public BaseResponse<LoginResDto> appleLogin(@PathVariable(name="socialLoginType") String socialLoginType, @RequestBody @Validated LoginReqDto loginReqDto, BindingResult bindingResult) throws Exception {
         // BindingResult = 검증 오류가 발생할 경우 오류 내용을 보관하는 객체
         if(bindingResult.hasErrors()) {
             ObjectError objectError = bindingResult.getAllErrors().stream().findFirst().get();
@@ -42,7 +44,7 @@ public class OAuthController {
     }
 
     // refreshToken으로 accessToken 재발급
-    @PostMapping("/refresh")
+    @PostMapping("/regenerate-token")
     public BaseResponse<LoginResDto> regenerateAccessToken(@RequestBody @Validated RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
         LoginResDto result = oauthService.regenerateAccessToken(refreshTokenReqDto);
         return BaseResponse.onSuccess(result);
@@ -50,14 +52,14 @@ public class OAuthController {
 
     // 구글 로그인
     // 사용자 로그인 페이지 제공 단계 - url
-    @GetMapping(value="/auth/{socialLoginType}")
+    @GetMapping(value="/{socialLoginType}")
     public void socialLoginType(@PathVariable(name="socialLoginType") String socialLoginType) throws IOException {
         oauthService.request(socialLoginType);
     }
 
     // code -> accessToken 받아오기
     // accessToken -> 사용자 정보 받아오기
-    @GetMapping(value="/auth/{socialLoginType}/callback")
+    @GetMapping(value="/{socialLoginType}/callback")
     public BaseResponse<LoginResDto> callback(
             @PathVariable(name="socialLoginType") String socialLoginType,
             @RequestParam(name="code") String code) throws JsonProcessingException {
