@@ -50,6 +50,7 @@ public class OAuthService {
     public LoginResDto appleLogin(LoginReqDto loginReqDto) throws BaseException {
         // identity token으로 email값 얻어오기
         String email = appleOAuthUserProvider.getEmailFromToken(loginReqDto.getIdToken());
+        log.info(email);
 
         // email이 null인 경우 : email 동의 안한 경우
         if(email == null)
