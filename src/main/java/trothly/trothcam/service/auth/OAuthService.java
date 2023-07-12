@@ -12,6 +12,7 @@ import trothly.trothcam.dto.auth.TokenDto;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
 import trothly.trothcam.dto.auth.apple.LoginResDto;
 //import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
+import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
 import trothly.trothcam.dto.auth.google.GoogleOauthToken;
 import trothly.trothcam.dto.auth.google.GoogleUser;
 import trothly.trothcam.exception.base.*;
@@ -19,6 +20,7 @@ import trothly.trothcam.exception.custom.InvalidProviderException;
 import trothly.trothcam.auth.apple.AppleOAuthUserProvider;
 import trothly.trothcam.domain.member.*;
 //import trothly.trothcam.exception.custom.InvalidTokenException;
+import trothly.trothcam.exception.custom.InvalidTokenException;
 import trothly.trothcam.service.JwtService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -76,29 +78,31 @@ public class OAuthService {
 //        redisTemplate.opsForValue().set(member.getId().toString(), newRefreshToken, 14L, TimeUnit.SECONDS);
 //        log.info("redis에 저장된 refreshToken : " + newRefreshToken + "\nmember.getId : " + member.getId().toString());
 
+        // DB에 refreshToken 저장
+        member.updateRefreshToken(newRefreshToken);
+        memberRepository.save(member);
         return new LoginResDto(newAccessToken, newRefreshToken);
     }
 
     // refreshToken으로 accessToken 발급하기
-//    @Transactional
-//    public LoginResDto regenerateAccessToken(RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
-//        String getRefreshToken = refreshTokenReqDto.getRefreshToken();
-//        Long memberId = jwtService.getMemberIdFromJwtToken(getRefreshToken);
-//
-//        String redisRefreshToken = redisTemplate.opsForValue().get(memberId.toString());
-//        log.info("getRefreshToken : " + getRefreshToken);
-//        log.info("redisRefreshToken : " + redisRefreshToken);   // 요 부분이 값이 있었다가 null로 떴다가 그래
-//
-//        if(!getRefreshToken.equals(redisRefreshToken))
-//            throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
-//
-//        String newAccessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
-//        String newRefreshToken = jwtService.encodeJwtRefreshToken(memberId);
-//
-//        redisTemplate.opsForValue().set(memberId.toString(), newRefreshToken, 14L, TimeUnit.SECONDS);
-//
-//        return new LoginResDto(newAccessToken, newRefreshToken);
-//    }
+    @Transactional
+    public LoginResDto regenerateAccessToken(RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
+        Long memberId = jwtService.getMemberIdFromJwtToken(refreshTokenReqDto.getRefreshToken());
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당되는 member_id를 찾을 수 없습니다."));
+
+        String refreshToken = refreshTokenReqDto.getRefreshToken();
+        if(refreshToken.equals(member.getRefreshToken()))
+            throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
+
+        String newRefreshToken = jwtService.encodeJwtRefreshToken(memberId);
+        String newAcessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
+
+        member.updateRefreshToken(newRefreshToken);
+        memberRepository.save(member);
+
+        return new LoginResDto(newAcessToken, newRefreshToken);
+    }
 
     // 구글 로그인
     //1. request
