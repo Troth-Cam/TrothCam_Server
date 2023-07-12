@@ -58,9 +58,11 @@ public class OAuthController {
     // code -> accessToken 받아오기
     // accessToken -> 사용자 정보 받아오기
     @GetMapping(value="/auth/{socialLoginType}/callback")
-    public void callback(
+    public BaseResponse<LoginResDto> callback(
             @PathVariable(name="socialLoginType") String socialLoginType,
             @RequestParam(name="code") String code) throws JsonProcessingException {
-        oauthService.oauthLogin(socialLoginType, code);
+
+        LoginResDto result = oauthService.oauthLogin(socialLoginType, code);
+        return BaseResponse.onSuccess(result);
     }
 }
