@@ -29,7 +29,7 @@ public class AppleOAuthUserProvider {
 
         Claims claims = appleJwtParser.parsePublicKeyAndGetClaims(identityToken, publicKey);
         log.info("claims : " + claims.toString());
-        validateClaims(claims);
+//        validateClaims(claims);
         return claims.get("email", String.class);
     }
 
