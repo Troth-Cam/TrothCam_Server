@@ -89,20 +89,23 @@ public class OAuthService {
     @Transactional
     public LoginResDto regenerateAccessToken(RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
         Long memberId = jwtService.getMemberIdFromJwtToken(refreshTokenReqDto.getRefreshToken());
+        log.info("memberId : " + memberId);
+
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당되는 member_id를 찾을 수 없습니다."));
 
         String refreshToken = refreshTokenReqDto.getRefreshToken();
-        if(refreshToken.equals(member.getRefreshToken()))
+        if(!refreshToken.equals(member.getRefreshToken()))
             throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
 
+
         String newRefreshToken = jwtService.encodeJwtRefreshToken(memberId);
-        String newAcessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
+        String newAccessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
 
         member.updateRefreshToken(newRefreshToken);
         memberRepository.save(member);
 
-        return new LoginResDto(newAcessToken, newRefreshToken);
+        return new LoginResDto(newAccessToken, newRefreshToken);
     }
 
     // 구글 로그인
