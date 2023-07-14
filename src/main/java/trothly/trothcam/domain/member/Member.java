@@ -52,4 +52,26 @@ public class Member extends BaseTimeEntity {
         this.refreshToken = refreshToken;
         this.refreshTokenExpiresAt = LocalDateTime.now();
     }
+
+    /* 웹 */
+    @Column(name = "web_id")
+    private String webId;
+
+    @Column(name = "web_password")
+    private String webPassword;
+
+    @Column(name = "web_token")
+    private String webToken;
+
+    @Column(name = "phone")
+    private String phone;
+
+    public void updateMember(String webToken, String webId, String webPassword, String name, String phone, String email) {
+        this.webToken = webToken;
+        this.webId = webId;
+        this.webPassword = webPassword;
+        this.name = name;
+        this.phone = phone;
+        this.email = email;
+    }
 }

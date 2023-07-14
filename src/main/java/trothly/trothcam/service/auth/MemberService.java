@@ -1,25 +1,33 @@
 package trothly.trothcam.service.auth;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Errors;
-import org.springframework.validation.FieldError;
+import trothly.trothcam.domain.member.Member;
+import trothly.trothcam.domain.member.MemberRepository;
+import trothly.trothcam.dto.auth.signup.SignupReq;
 
-import java.util.HashMap;
-import java.util.Map;
-
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class MemberService {
 
-    /* 회원가입 시, 유효성 및 중복 검사 */
+    private final MemberRepository memberRepository;
+
+    /* 회원 가입 */
+    @Transactional
+    public void signup(SignupReq signupReq) {
+        checkDuplicateId(signupReq.getWebId());
+
+        Member findMember = memberRepository.findByWebToken(signupReq.getWebToken());
+        findMember.updateMember(signupReq.getWebToken(), signupReq.getWebId(), signupReq.getWebPassword(), signupReq.getName(), signupReq.getPhone(), signupReq.getEmail());
+    }
+
+    /* 회원가입 시 중복 검사 */
     @Transactional(readOnly = true)
-    public Map<String, String> validateHandling(Errors errors) {
-        Map<String, String> validatorResult = new HashMap<>();
-
-        /* 유효성 및 중복 검사에 실패한 필드 목록을 받음*/
-        for (FieldError error : errors.getFieldErrors()) {
-            String validKeyName = String.format("valid_%s", error.getField());
-            validatorResult.put(validKeyName, error.getDefaultMessage());
+    public void checkDuplicateId(String webId) {
+        if (memberRepository.existsByWebId(webId)) {
+            throw new IllegalStateException("이미 가입된 아이디입니다.");
         }
-
-        return validatorResult;
     }
 }

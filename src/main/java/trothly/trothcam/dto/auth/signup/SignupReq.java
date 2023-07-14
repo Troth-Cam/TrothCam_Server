@@ -8,6 +8,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class SignupReqDto {
-    private String id;
+public class SignupReq {
+
+    private String webToken;
+    private String webId;
+    private String webPassword;
+    private String name;
+    private String phone;
+    private String email;
 }
