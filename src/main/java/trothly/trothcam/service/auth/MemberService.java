@@ -16,11 +16,13 @@ public class MemberService {
 
     /* 회원 가입 */
     @Transactional
-    public void signup(SignupReq signupReq) {
+    public String signup(SignupReq signupReq) {
         checkDuplicateId(signupReq.getWebId());
 
         Member findMember = memberRepository.findByWebToken(signupReq.getWebToken());
         findMember.updateMember(signupReq.getWebToken(), signupReq.getWebId(), signupReq.getWebPassword(), signupReq.getName(), signupReq.getPhone(), signupReq.getEmail());
+
+        return findMember.getWebId();
     }
 
     /* 회원가입 시 중복 검사 */
