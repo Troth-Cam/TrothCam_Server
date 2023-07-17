@@ -20,7 +20,7 @@ public class SignupService {
         System.out.println("web token: " + req.getWebToken());
         Member findMember = memberRepository.findByWebToken(req.getWebToken());
         System.out.println("findMember: " + findMember.toString());
-        findMember.updateMember(req.getWebToken(), req.getWebId(), req.getWebPassword(), req.getName(), req.getPhone(), req.getEmail());
+        findMember.updateMember(req.getWebId(), req.getWebPassword(), req.getName(), req.getPhone(), req.getEmail());
 
         return new SignupRes(findMember.getWebId());
     }
