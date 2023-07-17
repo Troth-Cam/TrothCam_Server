@@ -2,7 +2,6 @@ package trothly.trothcam.dto.auth.signup;
 
 import lombok.*;
 
-@Data
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor

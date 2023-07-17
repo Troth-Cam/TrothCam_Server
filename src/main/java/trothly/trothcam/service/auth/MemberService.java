@@ -1,6 +1,7 @@
 package trothly.trothcam.service.auth;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.member.Member;
@@ -17,19 +18,21 @@ public class MemberService {
     /* 회원 가입 */
     @Transactional
     public String signup(SignupReq signupReq) {
-        checkDuplicateId(signupReq.getWebId());
-
+        System.out.println("web token: " + signupReq.getWebToken());
         Member findMember = memberRepository.findByWebToken(signupReq.getWebToken());
+        System.out.println("findMember: " + findMember.toString());
         findMember.updateMember(signupReq.getWebToken(), signupReq.getWebId(), signupReq.getWebPassword(), signupReq.getName(), signupReq.getPhone(), signupReq.getEmail());
 
         return findMember.getWebId();
     }
 
-    /* 회원가입 시 중복 검사 */
+    /* 아이디 중복 확인 */
     @Transactional(readOnly = true)
-    public void checkDuplicateId(String webId) {
+    public boolean checkDuplicateId(String webId) {
+        System.out.println("아이디 중복 확인" + webId + memberRepository.existsByWebId(webId));
         if (memberRepository.existsByWebId(webId)) {
-            throw new IllegalStateException("이미 가입된 아이디입니다.");
+            return true;
         }
+        return false;
     }
 }
