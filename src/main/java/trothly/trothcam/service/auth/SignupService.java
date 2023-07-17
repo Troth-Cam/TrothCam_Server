@@ -1,30 +1,26 @@
 package trothly.trothcam.service.auth;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.member.MemberRepository;
-import trothly.trothcam.dto.auth.signup.CheckIdRes;
-import trothly.trothcam.dto.auth.signup.SignupReq;
-import trothly.trothcam.dto.auth.signup.SignupRes;
-import trothly.trothcam.exception.base.BaseException;
+import trothly.trothcam.dto.auth.signup.*;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MemberService {
+public class SignupService {
 
     private final MemberRepository memberRepository;
 
     /* 회원 가입 */
     @Transactional
-    public SignupRes signup(SignupReq signupReq) {
-        System.out.println("web token: " + signupReq.getWebToken());
-        Member findMember = memberRepository.findByWebToken(signupReq.getWebToken());
+    public SignupRes signup(SignupReq req) {
+        System.out.println("web token: " + req.getWebToken());
+        Member findMember = memberRepository.findByWebToken(req.getWebToken());
         System.out.println("findMember: " + findMember.toString());
-        findMember.updateMember(signupReq.getWebToken(), signupReq.getWebId(), signupReq.getWebPassword(), signupReq.getName(), signupReq.getPhone(), signupReq.getEmail());
+        findMember.updateMember(req.getWebToken(), req.getWebId(), req.getWebPassword(), req.getName(), req.getPhone(), req.getEmail());
 
         return new SignupRes(findMember.getWebId());
     }

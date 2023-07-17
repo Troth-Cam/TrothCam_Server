@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import trothly.trothcam.domain.core.BaseTimeEntity;
+import trothly.trothcam.dto.auth.TokenDto;
+import trothly.trothcam.service.JwtService;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -46,6 +48,7 @@ public class Member extends BaseTimeEntity {
         this.provider = provider;
         this.refreshToken = "";
         this.refreshTokenExpiresAt = LocalDateTime.now();
+        this.webToken = "";
     }
 
     public void updateRefreshToken(String refreshToken) {
@@ -66,12 +69,16 @@ public class Member extends BaseTimeEntity {
     @Column(name = "phone")
     private String phone;
 
-    public void updateMember(String webToken, String webId, String webPassword, String name, String phone, String email) {
-        this.webToken = webToken;
+    public void updateMember(String webId, String webPassword, String name, String phone, String email) {
         this.webId = webId;
         this.webPassword = webPassword;
         this.name = name;
         this.phone = phone;
         this.email = email;
     }
+
+    public void generateWebToken(String webToken) {
+        this.webToken = webToken;
+    }
+
 }
