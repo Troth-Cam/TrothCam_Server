@@ -6,8 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.member.MemberRepository;
 import trothly.trothcam.dto.auth.TokenDto;
-import trothly.trothcam.dto.auth.signup.ValidateWebTokenReq;
-import trothly.trothcam.dto.auth.signup.ValidateWebTokenRes;
+import trothly.trothcam.dto.auth.signup.ValidateWebTokenReqDto;
+import trothly.trothcam.dto.auth.signup.ValidateWebTokenResDto;
 import trothly.trothcam.service.JwtService;
 
 @Service
@@ -31,8 +31,8 @@ public class WebTokenService {
 
     /* 웹 토큰 유효성 검증 */
     @Transactional(readOnly = true)
-    public ValidateWebTokenRes validateWebToken(ValidateWebTokenReq req) {
+    public ValidateWebTokenResDto validateWebToken(ValidateWebTokenReqDto req) {
         Member findMember = memberRepository.findByWebToken(req.getWebToken());
-        return new ValidateWebTokenRes(findMember.getEmail());
+        return new ValidateWebTokenResDto(findMember.getEmail());
     }
 }

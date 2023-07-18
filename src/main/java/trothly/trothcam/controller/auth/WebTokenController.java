@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import trothly.trothcam.dto.auth.signup.ValidateWebTokenReq;
-import trothly.trothcam.dto.auth.signup.ValidateWebTokenRes;
+import trothly.trothcam.dto.auth.signup.ValidateWebTokenReqDto;
+import trothly.trothcam.dto.auth.signup.ValidateWebTokenResDto;
 import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.service.auth.WebTokenService;
 
@@ -19,8 +19,8 @@ public class WebTokenController {
 
     /* 웹 토큰 유효성 검증 */
     @PostMapping("/validate-token")
-    public BaseResponse<ValidateWebTokenRes> validateWebToken(@RequestBody ValidateWebTokenReq req) {
-        ValidateWebTokenRes result = webTokenService.validateWebToken(req);
+    public BaseResponse<ValidateWebTokenResDto> validateWebToken(@RequestBody ValidateWebTokenReqDto req) {
+        ValidateWebTokenResDto result = webTokenService.validateWebToken(req);
         return BaseResponse.onSuccess(result);
     }
 }

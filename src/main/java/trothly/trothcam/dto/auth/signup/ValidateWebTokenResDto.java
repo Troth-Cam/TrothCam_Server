@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ValidateWebTokenReq {
-    String webToken;
+public class ValidateWebTokenResDto {
+    String email;
 }

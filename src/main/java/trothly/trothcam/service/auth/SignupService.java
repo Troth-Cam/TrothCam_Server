@@ -16,23 +16,23 @@ public class SignupService {
 
     /* 회원 가입 */
     @Transactional
-    public SignupRes signup(SignupReq req) {
+    public SignupResDto signup(SignupReqDto req) {
         System.out.println("web token: " + req.getWebToken());
         Member findMember = memberRepository.findByWebToken(req.getWebToken());
         System.out.println("findMember: " + findMember.toString());
         findMember.updateMember(req.getWebId(), req.getWebPassword(), req.getName(), req.getPhone(), req.getEmail());
 
-        return new SignupRes(findMember.getWebId());
+        return new SignupResDto(findMember.getWebId());
     }
 
     /* 아이디 중복 확인 */
     @Transactional(readOnly = true)
-    public CheckIdRes checkDuplicateId(String webId) {
+    public CheckIdResDto checkDuplicateId(String webId) {
         boolean isDuplicated = false;
         System.out.println("아이디 중복 확인" + webId + memberRepository.existsByWebId(webId));
         if (memberRepository.existsByWebId(webId)) {
             isDuplicated = true;
         }
-        return new CheckIdRes(webId, isDuplicated);
+        return new CheckIdResDto(webId, isDuplicated);
     }
 }
