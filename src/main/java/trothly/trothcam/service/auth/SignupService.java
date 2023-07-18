@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.member.MemberRepository;
-import trothly.trothcam.dto.auth.signup.*;
+import trothly.trothcam.dto.auth.web.CheckIdResDto;
+import trothly.trothcam.dto.auth.web.SignupReqDto;
+import trothly.trothcam.dto.auth.web.SignupResDto;
 
 @Service
 @Transactional(readOnly = true)

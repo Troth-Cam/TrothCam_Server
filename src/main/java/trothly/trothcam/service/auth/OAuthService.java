@@ -7,7 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 //import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.dto.auth.TokenDto;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
 import trothly.trothcam.dto.auth.apple.LoginResDto;
@@ -15,6 +17,8 @@ import trothly.trothcam.dto.auth.apple.LoginResDto;
 import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
 import trothly.trothcam.dto.auth.google.GoogleOauthToken;
 import trothly.trothcam.dto.auth.google.GoogleUser;
+import trothly.trothcam.dto.auth.web.LoginWebReqDto;
+import trothly.trothcam.dto.auth.web.LoginWebResDto;
 import trothly.trothcam.exception.base.*;
 import trothly.trothcam.exception.custom.InvalidProviderException;
 import trothly.trothcam.auth.apple.AppleOAuthUserProvider;
@@ -24,7 +28,7 @@ import trothly.trothcam.exception.custom.InvalidTokenException;
 import trothly.trothcam.service.JwtService;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
+//import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +48,20 @@ public class OAuthService {
     private final GoogleOauth googleOauth;
     private final HttpServletResponse response;
 
+    // 웹 로그인
+    private final PasswordEncoder passwordEncoder;
+
+    /* 웹 로그인 */
+    @Transactional(readOnly = true)
+    public LoginWebResDto webLogin(LoginWebReqDto req) throws BaseException {
+        Member member = memberRepository.findByWebId(req.getId()).orElseThrow(() -> new BaseException(ErrorCode.LOGIN_ERROR));
+
+        if (!passwordEncoder.matches(req.getPassword(), member.getWebPassword())) {
+            throw new BaseException(ErrorCode.LOGIN_ERROR);
+        }
+
+        return new LoginWebResDto(member.getWebId());
+    }
 
     // 애플 로그인
     @Transactional

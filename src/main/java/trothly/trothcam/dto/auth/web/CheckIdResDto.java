@@ -1,4 +1,4 @@
-package trothly.trothcam.dto.auth.signup;
+package trothly.trothcam.dto.auth.web;
 
 import lombok.*;
 

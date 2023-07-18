@@ -5,7 +5,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import trothly.trothcam.dto.auth.signup.*;
+import trothly.trothcam.dto.auth.web.CheckIdResDto;
+import trothly.trothcam.dto.auth.web.SignupReqDto;
+import trothly.trothcam.dto.auth.web.SignupResDto;
 import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.service.auth.SignupService;
 

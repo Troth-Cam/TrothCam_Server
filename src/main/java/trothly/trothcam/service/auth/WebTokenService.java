@@ -6,8 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.member.MemberRepository;
 import trothly.trothcam.dto.auth.TokenDto;
-import trothly.trothcam.dto.auth.signup.ValidateWebTokenReqDto;
-import trothly.trothcam.dto.auth.signup.ValidateWebTokenResDto;
+import trothly.trothcam.dto.auth.web.ValidateWebTokenReqDto;
+import trothly.trothcam.dto.auth.web.ValidateWebTokenResDto;
 import trothly.trothcam.service.JwtService;
 
 @Service
