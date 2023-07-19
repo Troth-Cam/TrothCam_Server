@@ -1,9 +1,6 @@
 package trothly.trothcam.domain.member;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import trothly.trothcam.domain.core.BaseTimeEntity;
 import trothly.trothcam.dto.auth.TokenDto;
 import trothly.trothcam.service.JwtService;

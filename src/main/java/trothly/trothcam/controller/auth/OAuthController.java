@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
@@ -35,7 +36,7 @@ public class OAuthController {
 
     /* 웹 로그인 */
     @PostMapping("/login")
-    public BaseResponse<LoginWebResDto> webLogin(@RequestBody @Valid LoginWebReqDto req) {
+    public BaseResponse<LoginWebResDto> webLogin(@RequestBody @Valid LoginWebReqDto req) throws Exception {
         LoginWebResDto result = oauthService.webLogin(req);
         return BaseResponse.onSuccess(result);
     }

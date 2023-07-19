@@ -25,6 +25,8 @@ import trothly.trothcam.auth.apple.AppleOAuthUserProvider;
 import trothly.trothcam.domain.member.*;
 //import trothly.trothcam.exception.custom.InvalidTokenException;
 import trothly.trothcam.exception.custom.InvalidTokenException;
+import trothly.trothcam.exception.custom.LoginException;
+import trothly.trothcam.exception.custom.SignupException;
 import trothly.trothcam.service.JwtService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -48,16 +50,21 @@ public class OAuthService {
     private final GoogleOauth googleOauth;
     private final HttpServletResponse response;
 
-    // 웹 로그인
+    // 비밀번호 암호화
     private final PasswordEncoder passwordEncoder;
 
     /* 웹 로그인 */
     @Transactional(readOnly = true)
     public LoginWebResDto webLogin(LoginWebReqDto req) throws BaseException {
-        Member member = memberRepository.findByWebId(req.getId()).orElseThrow(() -> new BaseException(ErrorCode.LOGIN_ERROR));
+//        System.out.println(req.toString());
+        System.out.println(memberRepository.findByWebId(req.getId()).toString());
+        Member member = memberRepository.findByWebId(req.getId()).orElseThrow(() -> new LoginException("잘못된 아이디 혹은 비밀번호입니다."));
+//        System.out.println(member.getWebId());
 
+        // 비밀번호 일치 여부 판단
         if (!passwordEncoder.matches(req.getPassword(), member.getWebPassword())) {
-            throw new BaseException(ErrorCode.LOGIN_ERROR);
+            System.out.println(member.getWebPassword());
+            throw new LoginException("잘못된 아이디 혹은 비밀번호입니다.");
         }
 
         return new LoginWebResDto(member.getWebId());
