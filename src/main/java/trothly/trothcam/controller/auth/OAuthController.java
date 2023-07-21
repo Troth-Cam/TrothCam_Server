@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
@@ -18,8 +19,11 @@ import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
 import trothly.trothcam.dto.auth.apple.LoginResDto;
 import trothly.trothcam.exception.base.ErrorCode;
+import trothly.trothcam.exception.custom.BadRequestException;
+import trothly.trothcam.exception.custom.UnauthorizedException;
 import trothly.trothcam.service.auth.OAuthService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 
@@ -43,9 +47,9 @@ public class OAuthController {
 
     // 애플 로그인
     @PostMapping("/{socialLoginType}")
-    public BaseResponse<LoginResDto> appleLogin(@PathVariable(name="socialLoginType") String socialLoginType, @RequestBody @Validated LoginReqDto loginReqDto, BindingResult bindingResult) throws Exception {
+    public BaseResponse<LoginResDto> appleLogin(@PathVariable(name = "socialLoginType") String socialLoginType, @RequestBody @Validated LoginReqDto loginReqDto, BindingResult bindingResult) throws Exception {
         // BindingResult = 검증 오류가 발생할 경우 오류 내용을 보관하는 객체
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             ObjectError objectError = bindingResult.getAllErrors().stream().findFirst().get();
             return BaseResponse.onFailure(400, objectError.getDefaultMessage(), null);
         }
@@ -55,11 +59,17 @@ public class OAuthController {
     }
 
     // refreshToken으로 accessToken 재발급
+    // Authorization : Bearer Token에 refreshToken 담기
     @PostMapping("/regenerate-token")
-    public BaseResponse<LoginResDto> regenerateAccessToken(@RequestBody @Validated RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
-        LoginResDto result = oauthService.regenerateAccessToken(refreshTokenReqDto);
-        return BaseResponse.onSuccess(result);
+    public BaseResponse<LoginResDto> regenerateAccessToken(HttpServletRequest request) {
+        String refreshToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(refreshToken) && refreshToken.startsWith("Bearer ")) {
+            LoginResDto result = oauthService.regenerateAccessToken(refreshToken.substring(7));
+            return BaseResponse.onSuccess(result);
+        } else
+            throw new UnauthorizedException("유효하지 않은 토큰입니다.");
     }
+
 
     // 구글 로그인
     // 사용자 로그인 페이지 제공 단계 - url
@@ -76,6 +86,13 @@ public class OAuthController {
             @RequestParam(name="code") String code) throws JsonProcessingException {
 
         LoginResDto result = oauthService.oauthLogin(socialLoginType, code);
+        return BaseResponse.onSuccess(result);
+    }
+
+    // 로그아웃 -> 토큰 만료
+    @PostMapping("/logout")
+    public BaseResponse<String> logout(String email) {
+        String result = oauthService.logout(email);
         return BaseResponse.onSuccess(result);
     }
 }

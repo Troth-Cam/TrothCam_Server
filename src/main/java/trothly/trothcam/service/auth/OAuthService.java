@@ -20,13 +20,11 @@ import trothly.trothcam.dto.auth.google.GoogleUser;
 import trothly.trothcam.dto.auth.web.LoginWebReqDto;
 import trothly.trothcam.dto.auth.web.LoginWebResDto;
 import trothly.trothcam.exception.base.*;
-import trothly.trothcam.exception.custom.InvalidProviderException;
+import trothly.trothcam.exception.custom.*;
 import trothly.trothcam.auth.apple.AppleOAuthUserProvider;
 import trothly.trothcam.domain.member.*;
 //import trothly.trothcam.exception.custom.InvalidTokenException;
-import trothly.trothcam.exception.custom.InvalidTokenException;
-import trothly.trothcam.exception.custom.LoginException;
-import trothly.trothcam.exception.custom.SignupException;
+import trothly.trothcam.jwt.JwtAuthenticationFilter;
 import trothly.trothcam.service.JwtService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -52,6 +50,7 @@ public class OAuthService {
 
     // 비밀번호 암호화
     private final PasswordEncoder passwordEncoder;
+
 
     /* 웹 로그인 */
     @Transactional(readOnly = true)
@@ -112,14 +111,13 @@ public class OAuthService {
 
     // refreshToken으로 accessToken 발급하기
     @Transactional
-    public LoginResDto regenerateAccessToken(RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
-        Long memberId = jwtService.getMemberIdFromJwtToken(refreshTokenReqDto.getRefreshToken());
+    public LoginResDto regenerateAccessToken(String refreshToken) throws BaseException {
+        Long memberId = jwtService.getMemberIdFromJwtToken(refreshToken);
         log.info("memberId : " + memberId);
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당되는 member_id를 찾을 수 없습니다."));
 
-        String refreshToken = refreshTokenReqDto.getRefreshToken();
         if(!refreshToken.equals(member.getRefreshToken()))
             throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
 
@@ -190,5 +188,20 @@ public class OAuthService {
         memberRepository.save(member);
         return new LoginResDto(newAccessToken, newRefreshToken);
 
+    }
+
+    // 로그아웃
+    @Transactional
+    public String logout(String email) {
+        Optional<Member> getMember = memberRepository.findByEmail(email);
+
+        if(getMember.isEmpty())
+            throw new BadRequestException("잘못된 이메일 입니다.");
+
+        Member member = getMember.get();
+        member.refreshTokenExpires();
+        memberRepository.save(member);
+
+        return "로그아웃 성공";
     }
 }
