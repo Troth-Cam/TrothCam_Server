@@ -5,11 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
+import trothly.trothcam.dto.auth.web.LoginWebReqDto;
+import trothly.trothcam.dto.auth.web.LoginWebResDto;
 import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
@@ -17,6 +20,7 @@ import trothly.trothcam.dto.auth.apple.LoginResDto;
 import trothly.trothcam.exception.base.ErrorCode;
 import trothly.trothcam.service.auth.OAuthService;
 
+import javax.validation.Valid;
 import java.io.IOException;
 
 import static trothly.trothcam.exception.base.ErrorCode.REQUEST_ERROR;
@@ -29,6 +33,13 @@ public class OAuthController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
     private final OAuthService oauthService;
+
+    /* 웹 로그인 */
+    @PostMapping("/login")
+    public BaseResponse<LoginWebResDto> webLogin(@RequestBody @Valid LoginWebReqDto req) throws Exception {
+        LoginWebResDto result = oauthService.webLogin(req);
+        return BaseResponse.onSuccess(result);
+    }
 
     // 애플 로그인
     @PostMapping("/{socialLoginType}")

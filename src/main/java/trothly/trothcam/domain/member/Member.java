@@ -1,10 +1,9 @@
 package trothly.trothcam.domain.member;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import trothly.trothcam.domain.core.BaseTimeEntity;
+import trothly.trothcam.dto.auth.TokenDto;
+import trothly.trothcam.service.JwtService;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -46,10 +45,37 @@ public class Member extends BaseTimeEntity {
         this.provider = provider;
         this.refreshToken = "";
         this.refreshTokenExpiresAt = LocalDateTime.now();
+        this.webToken = "";
     }
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
         this.refreshTokenExpiresAt = LocalDateTime.now();
     }
+
+    /* 웹 */
+    @Column(name = "web_id")
+    private String webId;
+
+    @Column(name = "web_password")
+    private String webPassword;
+
+    @Column(name = "web_token")
+    private String webToken;
+
+    @Column(name = "phone")
+    private String phone;
+
+    public void updateMember(String webId, String webPassword, String name, String phone, String email) {
+        this.webId = webId;
+        this.webPassword = webPassword;
+        this.name = name;
+        this.phone = phone;
+        this.email = email;
+    }
+
+    public void generateWebToken(String webToken) {
+        this.webToken = webToken;
+    }
+
 }
