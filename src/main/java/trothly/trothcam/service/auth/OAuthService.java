@@ -192,13 +192,13 @@ public class OAuthService {
 
     // 로그아웃
     @Transactional
-    public String logout(String email) {
-        Optional<Member> getMember = memberRepository.findByEmail(email);
+    public String logout(String accessToken) {
+        if(!jwtService.validateToken(accessToken))
+            throw new UnauthorizedException("이미 만료된 토큰입니다.");
 
-        if(getMember.isEmpty())
-            throw new BadRequestException("잘못된 이메일 입니다.");
-
-        Member member = getMember.get();
+        Long memberId = jwtService.getMemberIdFromJwtToken(accessToken);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
         member.refreshTokenExpires();
         memberRepository.save(member);
 
