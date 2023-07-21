@@ -91,8 +91,12 @@ public class OAuthController {
 
     // 로그아웃 -> 토큰 만료
     @PostMapping("/logout")
-    public BaseResponse<String> logout(String email) {
-        String result = oauthService.logout(email);
-        return BaseResponse.onSuccess(result);
+    public BaseResponse<String> logout(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
+            String result = oauthService.logout(token.substring(7));
+            return BaseResponse.onSuccess(result);
+        } else
+            throw new UnauthorizedException("존재하지 않는 사용자입니다.");
     }
 }
