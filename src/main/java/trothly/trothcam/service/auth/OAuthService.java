@@ -7,7 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 //import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.dto.auth.TokenDto;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
 import trothly.trothcam.dto.auth.apple.LoginResDto;
@@ -15,16 +17,18 @@ import trothly.trothcam.dto.auth.apple.LoginResDto;
 import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
 import trothly.trothcam.dto.auth.google.GoogleOauthToken;
 import trothly.trothcam.dto.auth.google.GoogleUser;
+import trothly.trothcam.dto.auth.web.LoginWebReqDto;
+import trothly.trothcam.dto.auth.web.LoginWebResDto;
 import trothly.trothcam.exception.base.*;
-import trothly.trothcam.exception.custom.InvalidProviderException;
+import trothly.trothcam.exception.custom.*;
 import trothly.trothcam.auth.apple.AppleOAuthUserProvider;
 import trothly.trothcam.domain.member.*;
 //import trothly.trothcam.exception.custom.InvalidTokenException;
-import trothly.trothcam.exception.custom.InvalidTokenException;
+import trothly.trothcam.jwt.JwtAuthenticationFilter;
 import trothly.trothcam.service.JwtService;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
+//import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +48,26 @@ public class OAuthService {
     private final GoogleOauth googleOauth;
     private final HttpServletResponse response;
 
+    // 비밀번호 암호화
+    private final PasswordEncoder passwordEncoder;
+
+
+    /* 웹 로그인 */
+    @Transactional(readOnly = true)
+    public LoginWebResDto webLogin(LoginWebReqDto req) throws BaseException {
+//        System.out.println(req.toString());
+        System.out.println(memberRepository.findByWebId(req.getId()).toString());
+        Member member = memberRepository.findByWebId(req.getId()).orElseThrow(() -> new LoginException("잘못된 아이디 혹은 비밀번호입니다."));
+//        System.out.println(member.getWebId());
+
+        // 비밀번호 일치 여부 판단
+        if (!passwordEncoder.matches(req.getPassword(), member.getWebPassword())) {
+            System.out.println(member.getWebPassword());
+            throw new LoginException("잘못된 아이디 혹은 비밀번호입니다.");
+        }
+
+        return new LoginWebResDto(member.getWebId());
+    }
 
     // 애플 로그인
     @Transactional
@@ -87,14 +111,13 @@ public class OAuthService {
 
     // refreshToken으로 accessToken 발급하기
     @Transactional
-    public LoginResDto regenerateAccessToken(RefreshTokenReqDto refreshTokenReqDto) throws BaseException {
-        Long memberId = jwtService.getMemberIdFromJwtToken(refreshTokenReqDto.getRefreshToken());
+    public LoginResDto regenerateAccessToken(String refreshToken) throws BaseException {
+        Long memberId = jwtService.getMemberIdFromJwtToken(refreshToken);
         log.info("memberId : " + memberId);
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당되는 member_id를 찾을 수 없습니다."));
 
-        String refreshToken = refreshTokenReqDto.getRefreshToken();
         if(!refreshToken.equals(member.getRefreshToken()))
             throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
 
@@ -165,5 +188,20 @@ public class OAuthService {
         memberRepository.save(member);
         return new LoginResDto(newAccessToken, newRefreshToken);
 
+    }
+
+    // 로그아웃
+    @Transactional
+    public String logout(String email) {
+        Optional<Member> getMember = memberRepository.findByEmail(email);
+
+        if(getMember.isEmpty())
+            throw new BadRequestException("잘못된 이메일 입니다.");
+
+        Member member = getMember.get();
+        member.refreshTokenExpires();
+        memberRepository.save(member);
+
+        return "로그아웃 성공";
     }
 }
