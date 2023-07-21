@@ -8,9 +8,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import trothly.trothcam.domain.member.*;
 import trothly.trothcam.dto.auth.TokenDto;
 import trothly.trothcam.exception.custom.UnauthorizedException;
+import trothly.trothcam.jwt.JwtAuthenticationFilter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
@@ -117,13 +120,15 @@ public class JwtService {
         }
     }
 
-    // Header X-ACCESS-TOKEN으로 JWT 추출
-    public String getToken(HttpServletRequest request) {
-        return request.getHeader("X-AUTH-TOKEN");
+    // Autorization : Bearer에서 accessToken 추출
+    public String getToken(){
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        return request.getHeader(JwtAuthenticationFilter.AUTHORIZATION_HEADER);
     }
 
-    // Header X-REFRESH-TOKEN으로 JWT 추출
-    public String getRefreshToken(HttpServletRequest request){
-        return request.getHeader("X-REFRESH-TOKEN");
+    // Autorization : Bearer에서 refreshToken 추출
+    public String getRefreshToken(){
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        return request.getHeader(JwtAuthenticationFilter.AUTHORIZATION_HEADER);
     }
 }

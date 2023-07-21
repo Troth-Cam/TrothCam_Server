@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -30,7 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) {
         // 로그인 개발 끝나면 "/**" 경로에서 삭제
-        web.ignoring().antMatchers("/login/**", "/health-check/**", "/**");
+        web.ignoring().antMatchers("/auth/**", "/health-check/**", "/**");
     }
 
     @Override
@@ -42,14 +43,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 세션을 사용하지 않기 때문에 STATELESS 로 설정
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilter(new JwtAuthenticationFilter(authenticationManager(),jwtService))
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), jwtService))
                 .authorizeRequests()
-                .antMatchers("/login/**").permitAll()
+                .antMatchers("/auth/**").permitAll()
                 .antMatchers("/health-check/**").permitAll()
                 .antMatchers("/**").permitAll()     // 로그인 개발 끝나면 삭제
                 .anyRequest().authenticated()
                 .and()
-//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                // JwtAuthenticationFilter 보다 jwtExceptionFilter를 먼저 검사
                 .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
     }
 

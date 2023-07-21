@@ -48,8 +48,15 @@ public class Member extends BaseTimeEntity {
         this.webToken = "";
     }
 
+    // refreshToken 재발급
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+        this.refreshTokenExpiresAt = LocalDateTime.now();
+    }
+
+    // 로그아웃 시 토큰 만료
+    public void refreshTokenExpires() {
+        this.refreshToken = "";
         this.refreshTokenExpiresAt = LocalDateTime.now();
     }
 
