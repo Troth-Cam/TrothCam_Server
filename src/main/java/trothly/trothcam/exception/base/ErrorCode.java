@@ -23,7 +23,7 @@ public enum ErrorCode { // BaseResponseStatus와 같은 역할
     INVALID_JWT(2005, "유효하지 않은 JWT입니다.", UNAUTHORIZED),
     INVALID_USER_JWT(2006,"권한이 없는 유저의 접근입니다.", BAD_REQUEST),
     NOT_AGREE_EMAIL(2007, "이메일 동의가 거부되었습니다.", BAD_REQUEST),
-
+    MEMBER_NOT_FOUND(2008, "해당되는 유저를 찾을 수 없습니다.", BAD_REQUEST),
 
     /**
      * 3000 : Response 오류
