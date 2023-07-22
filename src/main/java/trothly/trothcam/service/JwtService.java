@@ -2,44 +2,48 @@ package trothly.trothcam.service;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.util.StringUtils;
 import trothly.trothcam.domain.member.*;
 import trothly.trothcam.dto.auth.TokenDto;
+import trothly.trothcam.exception.custom.BadRequestException;
 import trothly.trothcam.exception.custom.UnauthorizedException;
 import trothly.trothcam.jwt.JwtAuthenticationFilter;
+import trothly.trothcam.service.auth.UserDetailServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtService {
 
     @Value("${jwt.secret}")
     private String JWT_SECRET;
-//    private final RedisTemplate<String, String> redisTemplate;
     private final MemberRepository memberRepository;
+    private final UserDetailServiceImpl userDetailService;
+    private Long tokenValidTime = 1000L * 60 * 3; // 3m
+    private Long refreshTokenValidTime = 1000L * 60 * 60 * 24; // 1d
 
+    // access token 생성
     public String encodeJwtToken(TokenDto tokenDto) {
         Date now = new Date();
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setIssuer("trothcam")
+                .setIssuer("memotion")
                 .setIssuedAt(now)
                 .setSubject(tokenDto.getMemberId().toString())
-//                .setExpiration(new Date(now.getTime()+20000))
-                .setExpiration(new Date(now.getTime() + Duration.ofDays(180).toMillis()))
+                .setExpiration(new Date(now.getTime() + tokenValidTime))
                 .claim("memberId", tokenDto.getMemberId())
                 .signWith(SignatureAlgorithm.HS256,
                         Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
@@ -47,12 +51,13 @@ public class JwtService {
                 .compact();
     }
 
+    // refresh token 생성
     public String encodeJwtRefreshToken(Long memberId) {
         Date now = new Date();
         return Jwts.builder()
                 .setIssuedAt(now)
                 .setSubject(memberId.toString())
-                .setExpiration(new Date(now.getTime() + Duration.ofMinutes(20160).toMillis()))
+                .setExpiration(new Date(now.getTime() + refreshTokenValidTime))
                 .claim("memberId", memberId)
                 .claim("roles", "USER")
                 .signWith(SignatureAlgorithm.HS256,
@@ -61,7 +66,7 @@ public class JwtService {
                 .compact();
     }
 
-    // JWT 토큰으로부터 memberId 추출
+    // JWT 토큰 으로부터 memberId 추출
     public Long getMemberIdFromJwtToken(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
@@ -71,64 +76,43 @@ public class JwtService {
         return Long.parseLong(claims.getSubject());
     }
 
+    // JWT 토큰 인증 정보 조회 (토큰 복호화)
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = (UserDetails) memberRepository.findById(this.getMemberIdFromJwtToken(token))
-                .orElseThrow(() -> new IllegalArgumentException("해당되는 사용자를 찾을 수 없습니다."));
-
-        return new UsernamePasswordAuthenticationToken(userDetails, "",
-                userDetails.getAuthorities());
+        UserDetails userDetails = userDetailService.loadUserByUsername(this.getMemberIdFromJwtToken(token).toString());
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-
+    // 토큰 유효성 + 만료일자 확인
     public Boolean validateToken(String token) {
         try {
             Jws<Claims> claims = Jwts.parser()
                     .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
                             StandardCharsets.UTF_8))).parseClaimsJws(token);
-
-            System.out.println(claims.getBody().getExpiration());
-
-            if (claims.getBody().getExpiration().before(new Date())) {
-                throw new UnauthorizedException("만료된 토큰입니다.");
-            }
+            Long memberId = claims.getBody().get("memberId", Long.class);
+            log.info("validateToken ------- memberId : " + memberId);
             return true;
         } catch (Exception e) {
             throw new UnauthorizedException("만료된 토큰입니다.");
         }
     }
 
-    public Boolean validateRefreshToken(String token) {
-        try {
-            Jws<Claims> claims = Jwts.parser()
-                    .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
-                            StandardCharsets.UTF_8))).parseClaimsJws(token);
-            if (claims.getBody().getExpiration().before(new Date())) {
-                throw new UnauthorizedException("만료된 토큰입니다.");
-            }
+    // Autorization : Bearer에서 token 추출 (refreshToken, accessToken 포함)
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(JwtAuthenticationFilter.AUTHORIZATION_HEADER);
 
-            // 유저 리프레쉬 토큰 확인
-            Long memberId = getMemberIdFromJwtToken(token);
-            String redisRefreshToken = memberRepository.findById(memberId).get().getRefreshToken();
-//            String redisRefreshToken = redisTemplate.opsForValue().get(memberId.toString());
+        if (bearerToken == null)
+            throw new BadRequestException("토큰값이 존재하지 않습니다.");
+        else if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer "))
+            return bearerToken.substring(7);
 
-            if(redisRefreshToken.equals(token)){
-                return true;
-            }
-            return false;
-        } catch (Exception e) {
-            throw new UnauthorizedException("만료된 토큰입니다.");
-        }
+        return bearerToken;
     }
 
-    // Autorization : Bearer에서 accessToken 추출
-    public String getToken(){
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        return request.getHeader(JwtAuthenticationFilter.AUTHORIZATION_HEADER);
-    }
+    // 토큰 유효 시간 확인
+    public Long getExpiration(String accessToken) {
+        Date expiration = Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(accessToken).getBody().getExpiration();
+        Long now = new Date().getTime();
 
-    // Autorization : Bearer에서 refreshToken 추출
-    public String getRefreshToken(){
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        return request.getHeader(JwtAuthenticationFilter.AUTHORIZATION_HEADER);
+        return (expiration.getTime() - now);
     }
 }

@@ -28,12 +28,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtService jwtService;
     private final JwtExceptionFilter jwtExceptionFilter;
 
+    // 스프링시큐리티 앞단 설정
     @Override
     public void configure(WebSecurity web) {
         // 로그인 개발 끝나면 "/**" 경로에서 삭제
-        web.ignoring().antMatchers("/auth/**", "/health-check/**", "/**");
+        web.ignoring().antMatchers("/auth/**", "/h2-console/**");
     }
 
+    // 스프링시큐리티 설정
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -46,11 +48,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilter(new JwtAuthenticationFilter(authenticationManager(), jwtService))
                 .authorizeRequests()
                 .antMatchers("/auth/**").permitAll()
-                .antMatchers("/health-check/**").permitAll()
-                .antMatchers("/**").permitAll()     // 로그인 개발 끝나면 삭제
+                .antMatchers("/h2-console/**").permitAll()
+                //.antMatchers("/**").permitAll()     // 로그인 개발 끝나면 삭제
                 .anyRequest().authenticated()
                 .and()
-                // JwtAuthenticationFilter 보다 jwtExceptionFilter를 먼저 검사
+                // JwtAuthenticationFilter 보다 jwtExceptionFilter를 먼저 실행
                 .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
     }
 
@@ -65,8 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private CorsConfiguration getDefaultCorsConfiguration() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(
-                Arrays.asList("http://localhost:8080", "https://trothly.com",
-                        "https://appleid.apple.com"));
+                Arrays.asList("http://localhost:8080"));
         configuration.setAllowedHeaders(Arrays.asList("*")); // 모든 header 에 응답을 허용
         configuration.setAllowedMethods(Arrays.asList("*")); // 모든 get,post,patch,put,delete 요청 허용
         configuration.setAllowedOrigins(Arrays.asList("*")); // 모든 ip 응답을 허용

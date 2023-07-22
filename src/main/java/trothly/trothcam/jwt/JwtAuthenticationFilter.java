@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+// Jwt 토큰으로 인증 + SecurityContextHolder에 추가하는 필터 설정
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -32,36 +33,16 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
         this.jwtService = jwtService;
     }
 
-
-    // header에서 token 값을 가져옴
-    // header : JWT를 검증하는 암호화 알고리즘, 토큰 타입이 포함된다
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-
-        if (bearerToken == null)
-            throw new BadRequestException("토큰값이 존재하지 않습니다.");
-        else if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer "))
-            return bearerToken.substring(7);
-
-        return bearerToken;
-    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String token = jwtService.getToken();
-        String refreshToken = jwtService.getRefreshToken();
+        // 헤더에서 토큰 가져오기
+        String token = jwtService.resolveToken(request);
         String requestURI = request.getRequestURI();
 
         // 토큰이 존재 여부 + 토큰 검증
         if (StringUtils.hasText(token) && jwtService.validateToken(token)) {
             // 권한
             Authentication authentication = jwtService.getAuthentication(token);
-            // security 세션에 등록
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
-        } else if (StringUtils.hasText(refreshToken) && jwtService.validateToken(refreshToken)) {
-            // 권한
-            Authentication authentication = jwtService.getAuthentication(refreshToken);
             // security 세션에 등록
             SecurityContextHolder.getContext().setAuthentication(authentication);
             logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
