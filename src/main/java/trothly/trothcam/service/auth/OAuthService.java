@@ -55,18 +55,19 @@ public class OAuthService {
     /* 웹 로그인 */
     @Transactional(readOnly = true)
     public LoginWebResDto webLogin(LoginWebReqDto req) throws BaseException {
-//        System.out.println(req.toString());
-        System.out.println(memberRepository.findByWebId(req.getId()).toString());
-        Member member = memberRepository.findByWebId(req.getId()).orElseThrow(() -> new LoginException("잘못된 아이디 혹은 비밀번호입니다."));
-//        System.out.println(member.getWebId());
+        Member member = memberRepository.findByWebId(req.getId()) // 아이디 일치 여부 판단
+                .orElseThrow(() -> new LoginException("잘못된 아이디 혹은 비밀번호입니다."));
 
-        // 비밀번호 일치 여부 판단
-        if (!passwordEncoder.matches(req.getPassword(), member.getWebPassword())) {
+        if (!passwordEncoder.matches(req.getPassword(), member.getWebPassword())) { // 비밀번호 일치 여부 판단
             System.out.println(member.getWebPassword());
             throw new LoginException("잘못된 아이디 혹은 비밀번호입니다.");
         }
 
-        return new LoginWebResDto(member.getWebId());
+        String newAccessToken = jwtService.encodeJwtToken(new TokenDto(member.getId()));
+        String newRefreshToken = jwtService.encodeJwtRefreshToken(member.getId());
+        member.updateRefreshToken(newRefreshToken); // JPA 변경 감지로 DB 업데이트
+
+        return new LoginWebResDto(newAccessToken, newRefreshToken);
     }
 
     // 애플 로그인
