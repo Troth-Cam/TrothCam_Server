@@ -42,7 +42,12 @@ public class OAuthController {
 
     /* 웹 로그인 */
     @PostMapping("/login")
-    public BaseResponse<LoginWebResDto> webLogin(@RequestBody @Valid LoginWebReqDto req) throws Exception {
+    public BaseResponse<LoginWebResDto> webLogin(@RequestBody @Validated LoginWebReqDto req, BindingResult bindingResult) throws Exception {
+        if (bindingResult.hasErrors()) {
+            ObjectError objectError = bindingResult.getAllErrors().stream().findFirst().get();
+            return BaseResponse.onFailure(400, objectError.getDefaultMessage(), null);
+        }
+
         LoginWebResDto result = oauthService.webLogin(req);
         return BaseResponse.onSuccess(result);
     }

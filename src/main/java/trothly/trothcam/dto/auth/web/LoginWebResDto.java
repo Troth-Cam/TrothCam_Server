@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class LoginWebResDto {
-    private String webId;
+    private String accessToken;
+    private String refreshToken;
 }
