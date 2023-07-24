@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import trothly.trothcam.domain.member.*;
 import trothly.trothcam.dto.auth.TokenDto;
@@ -19,6 +20,7 @@ import trothly.trothcam.service.auth.UserDetailServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 
@@ -40,7 +42,7 @@ public class JwtService {
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setIssuer("memotion")
+                .setIssuer("trothcam")
                 .setIssuedAt(now)
                 .setSubject(tokenDto.getMemberId().toString())
                 .setExpiration(new Date(now.getTime() + tokenValidTime))
@@ -59,6 +61,23 @@ public class JwtService {
                 .setSubject(memberId.toString())
                 .setExpiration(new Date(now.getTime() + refreshTokenValidTime))
                 .claim("memberId", memberId)
+                .claim("roles", "USER")
+                .signWith(SignatureAlgorithm.HS256,
+                        Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
+                                StandardCharsets.UTF_8)))
+                .compact();
+    }
+
+    @Transactional
+    public String encodeWebToken(Long memberId, LocalDateTime createdAt) {
+        Date now = new Date();
+        String webToken = String.valueOf(memberId) + String.valueOf(createdAt);
+        log.info("webToken : " + webToken);
+
+        return Jwts.builder()
+                .setIssuedAt(now)
+                .setSubject(memberId.toString())
+                .claim("webToken", webToken)
                 .claim("roles", "USER")
                 .signWith(SignatureAlgorithm.HS256,
                         Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(

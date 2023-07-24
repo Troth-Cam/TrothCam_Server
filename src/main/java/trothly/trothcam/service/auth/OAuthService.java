@@ -48,6 +48,8 @@ public class OAuthService {
     private final GoogleOauth googleOauth;
     private final HttpServletResponse response;
 
+    private final WebTokenService webTokenService;
+
     // 비밀번호 암호화
     private final PasswordEncoder passwordEncoder;
 
@@ -107,6 +109,8 @@ public class OAuthService {
         // DB에 refreshToken 저장
         member.updateRefreshToken(newRefreshToken);
         memberRepository.save(member);
+
+        webTokenService.encodeWebToken(member.getId(), member.getCreatedAt());
         return new LoginResDto(newAccessToken, newRefreshToken);
     }
 
@@ -187,6 +191,8 @@ public class OAuthService {
         // DB에 refreshToken 저장
         member.updateRefreshToken(newRefreshToken);
         memberRepository.save(member);
+
+        webTokenService.encodeWebToken(member.getId(), member.getCreatedAt());
         return new LoginResDto(newAccessToken, newRefreshToken);
 
     }
