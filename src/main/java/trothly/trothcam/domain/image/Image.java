@@ -27,9 +27,6 @@ public class Image {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    protected Image() {
-    }
-
     public Image(String imageHash, Member member) {
         this.imageHash = imageHash;
         this.member = member;
