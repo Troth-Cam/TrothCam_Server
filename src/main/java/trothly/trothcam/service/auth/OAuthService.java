@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import static trothly.trothcam.exception.base.ErrorCode.MEMBER_NOT_FOUND;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -116,16 +118,17 @@ public class OAuthService {
 
     // refreshToken으로 accessToken 발급하기
     @Transactional
-    public LoginResDto regenerateAccessToken(String refreshToken) throws BaseException {
+    public LoginResDto regenerateAccessToken(String refreshToken) {
         Long memberId = jwtService.getMemberIdFromJwtToken(refreshToken);
         log.info("memberId : " + memberId);
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당되는 member_id를 찾을 수 없습니다."));
+        Optional<Member> getMember = memberRepository.findById(memberId);
+        if(getMember.isEmpty())
+            throw new BaseException(MEMBER_NOT_FOUND);
 
+        Member member = getMember.get();
         if(!refreshToken.equals(member.getRefreshToken()))
-            throw new InvalidTokenException("유효하지 않은 Refresh Token입니다.");
-
+            throw new InvalidTokenException("유효하지 않은 Refresh Token입니다");
 
         String newRefreshToken = jwtService.encodeJwtRefreshToken(memberId);
         String newAccessToken = jwtService.encodeJwtToken(new TokenDto(memberId));
@@ -201,11 +204,14 @@ public class OAuthService {
     @Transactional
     public String logout(String accessToken) {
         if(!jwtService.validateToken(accessToken))
-            throw new UnauthorizedException("이미 만료된 토큰입니다.");
+            throw new UnauthorizedException("유효하지 않거나 만료된 토큰입니다.");
 
         Long memberId = jwtService.getMemberIdFromJwtToken(accessToken);
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
+        Optional<Member> getMember = memberRepository.findById(memberId);
+        if(getMember.isEmpty())
+            throw new BaseException(MEMBER_NOT_FOUND);
+
+        Member member = getMember.get();
         member.refreshTokenExpires();
         memberRepository.save(member);
 

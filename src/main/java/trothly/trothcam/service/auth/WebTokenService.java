@@ -22,6 +22,8 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
 
+import static trothly.trothcam.exception.base.ErrorCode.MEMBER_NOT_FOUND;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -54,5 +56,14 @@ public class WebTokenService {
         Member findMember = memberRepository.findByWebToken(req.getWebToken())
                 .orElseThrow(() -> new SignupException("유효하지 않는 token입니다."));
         return new ValidateWebTokenResDto(findMember.getEmail());
+    }
+
+    /* 웹 토큰 조회 */
+    public String getWebToken(Long memberId) {
+        // 토큰 만료 에러 처리
+        Optional<Member> member = memberRepository.findById(memberId);
+        if(member.isEmpty())
+            throw new BadRequestException(MEMBER_NOT_FOUND);
+        return member.get().getWebToken();
     }
 }

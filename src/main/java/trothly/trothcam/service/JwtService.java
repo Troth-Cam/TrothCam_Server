@@ -87,12 +87,16 @@ public class JwtService {
 
     // JWT 토큰 으로부터 memberId 추출
     public Long getMemberIdFromJwtToken(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
-                        StandardCharsets.UTF_8)))
-                .parseClaimsJws(token)
-                .getBody();
-        return Long.parseLong(claims.getSubject());
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
+                            StandardCharsets.UTF_8)))
+                    .parseClaimsJws(token)
+                    .getBody();
+            return Long.parseLong(claims.getSubject());
+        } catch(Exception e) {
+            throw new UnauthorizedException("유효하지 않거나 만료된 토큰입니다");
+        }
     }
 
     // JWT 토큰 인증 정보 조회 (토큰 복호화)
@@ -111,7 +115,7 @@ public class JwtService {
             log.info("validateToken ------- memberId : " + memberId);
             return true;
         } catch (Exception e) {
-            throw new UnauthorizedException("만료된 토큰입니다.");
+            throw new UnauthorizedException("유효하지 않거나 만료된 토큰입니다.");
         }
     }
 

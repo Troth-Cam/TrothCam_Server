@@ -7,10 +7,10 @@ import trothly.trothcam.exception.base.ErrorCode;
 @Getter
 public class UnauthorizedException extends BaseException {
 
-    String message;
+    private String message;
 
-    public UnauthorizedException(String message) {
-        super(ErrorCode._UNAUTHORIZED);
+    public UnauthorizedException(String message){
+        super(ErrorCode._UNAUTHORIZED, message);
         this.message = message;
     }
 

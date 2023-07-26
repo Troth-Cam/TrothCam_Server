@@ -25,6 +25,8 @@ public enum ErrorCode { // BaseResponseStatus와 같은 역할
     NOT_AGREE_EMAIL(2007, "이메일 동의가 거부되었습니다.", BAD_REQUEST),
     MEMBER_NOT_FOUND(2008, "해당되는 유저를 찾을 수 없습니다.", BAD_REQUEST),
     DUPLICATED_MEMBER(2009, "중복된 WEB 토큰 입니다.", BAD_REQUEST),
+    INVALID_PROVIDER(2010, "잘못된 PROVIDER 입니다.", BAD_REQUEST),
+    TOKEN_EXPIRED(2011, "토큰 유효시간이 만료되었습니다.", BAD_REQUEST),
 
     /**
      * 3000 : Response 오류
