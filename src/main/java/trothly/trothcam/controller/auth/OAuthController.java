@@ -2,6 +2,7 @@ package trothly.trothcam.controller.auth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ import java.io.IOException;
 
 import static trothly.trothcam.exception.base.ErrorCode.REQUEST_ERROR;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -74,7 +76,7 @@ public class OAuthController {
             LoginResDto result = oauthService.regenerateAccessToken(refreshToken.substring(7));
             return BaseResponse.onSuccess(result);
         } else
-            throw new UnauthorizedException("유효하지 않은 토큰입니다.");
+            throw new UnauthorizedException("유효하지 않거나 만료된 토큰입니다.");
     }
 
 
@@ -104,6 +106,6 @@ public class OAuthController {
             String result = oauthService.logout(token.substring(7));
             return BaseResponse.onSuccess(result);
         } else
-            throw new UnauthorizedException("존재하지 않는 사용자입니다.");
+            throw new UnauthorizedException("유효하지 않거나 만료된 토큰입니다.");
     }
 }
