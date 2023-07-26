@@ -10,7 +10,7 @@ public class InvalidProviderException extends BaseException {
     private String message;
 
     public InvalidProviderException(String message){
-        super(ErrorCode._BAD_REQUEST,message);
+        super(ErrorCode.INVALID_PROVIDER, message);
         this.message = message;
     }
 

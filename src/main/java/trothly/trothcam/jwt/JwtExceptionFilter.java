@@ -29,6 +29,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         try {
             doFilter(request, response, filterChain);
         } catch (RuntimeException | IOException e) {
+            // Bearer 토큰 없이 요청하는 경우 에러 처리
             logger.error("JwtExceptionFilter: {}", e.getMessage());
             final Map<String, Object> body = new HashMap<>();
             final ObjectMapper mapper = new ObjectMapper();

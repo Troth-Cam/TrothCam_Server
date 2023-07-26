@@ -10,7 +10,7 @@ public class InvalidTokenException extends BaseException {
     private String message;
 
     public InvalidTokenException(String message){
-        super(ErrorCode._BAD_REQUEST,message);
+        super(ErrorCode.INVALID_JWT, message);
         this.message = message;
     }
 

@@ -32,7 +32,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) {
         // 로그인 개발 끝나면 "/**" 경로에서 삭제
-        web.ignoring().antMatchers("/auth/**", "/h2-console/**", "/sample/**");
+        web.ignoring().antMatchers("/auth/apple", "/auth/regenerate-token",
+                "/auth/google", "/auth/validate-token",
+                "/auth/check-id", "/auth/signup",
+                "/auth/login", "/auth/logout",
+                "/h2-console/**", "/sample/**");
     }
 
     // 스프링시큐리티 설정
@@ -47,7 +51,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilter(new JwtAuthenticationFilter(authenticationManager(), jwtService))
                 .authorizeRequests()
-                .antMatchers("/auth/**").permitAll()
+                .antMatchers("/auth/apple").permitAll()
+                .antMatchers("/auth/google").permitAll()
+                .antMatchers("/auth/regenerate-token").permitAll()
+                .antMatchers("/auth/validate-token").permitAll()
+                .antMatchers("/auth/check-id").permitAll()
+                .antMatchers("/auth/signup").permitAll()
+                .antMatchers("/auth/login").permitAll()
+                .antMatchers("/auth/logout").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/sample/**").permitAll()
                 //.antMatchers("/**").permitAll()     // 로그인 개발 끝나면 삭제

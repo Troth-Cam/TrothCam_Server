@@ -10,7 +10,7 @@ public class TokenExpiredException extends BaseException {
     private String message;
 
     public TokenExpiredException(String message){
-        super(ErrorCode._BAD_REQUEST,message);
+        super(ErrorCode.TOKEN_EXPIRED, message);
         this.message = message;
     }
 
