@@ -28,8 +28,8 @@ spring:
 
 oauth:
   apple:
-    iss: ${APPLE_ISSUE}
-    client-id: ${APPLE_BUNDLE_ID}
+    iss: https://appleid.apple.com
+    client-id: com.parkjju.trothcam
 
 jwt:
   secret: ${JWT_SECRET}
