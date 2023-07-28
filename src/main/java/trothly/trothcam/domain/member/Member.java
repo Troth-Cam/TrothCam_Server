@@ -26,6 +26,9 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Column(name = "email", length = 255, nullable = false)
     private String email;
 
+    @Column(name = "apple_sub", length = 255, nullable = true)
+    private String appleSub;
+
     @Column(name = "name", nullable = true)
     private String name;
 
@@ -43,8 +46,9 @@ public class Member extends BaseTimeEntity implements UserDetails {
     private LocalDateTime refreshTokenExpiresAt;
 
     @Builder
-    private Member(String email, Provider provider) {
+    private Member(String email, String appleSub, Provider provider) {
         this.email = email;
+        this.appleSub = appleSub;
         this.provider = provider;
         this.refreshToken = "";
         this.refreshTokenExpiresAt = LocalDateTime.now();

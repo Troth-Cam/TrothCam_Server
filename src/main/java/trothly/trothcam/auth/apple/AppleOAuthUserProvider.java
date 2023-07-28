@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import trothly.trothcam.dto.auth.apple.AppleInfo;
 import trothly.trothcam.dto.auth.apple.ApplePublicKeys;
 import trothly.trothcam.exception.custom.InvalidTokenException;
 
@@ -21,7 +22,7 @@ public class AppleOAuthUserProvider {
     private final PublicKeyGenerator publicKeyGenerator;
     private final AppleClaimsValidator appleClaimsValidator;
 
-    public String getEmailFromToken(String identityToken) {
+    public AppleInfo getAppleInfoFromToken(String identityToken) {
         Map<String, String> headers = appleJwtParser.parseHeaders(identityToken);
         ApplePublicKeys applePublicKeys = appleClient.getApplePublicKeys();
 
@@ -29,8 +30,13 @@ public class AppleOAuthUserProvider {
 
         Claims claims = appleJwtParser.parsePublicKeyAndGetClaims(identityToken, publicKey);
         log.info("claims : " + claims.toString());
-//        validateClaims(claims);
-        return claims.get("email", String.class);
+        validateClaims(claims);
+
+        String email = claims.get("email", String.class);
+        String sub = claims.get("sub", String.class);
+        log.info("email : " + email + "\nsub : " + sub);
+
+        return new AppleInfo(email, sub);
     }
 
     private void validateClaims(Claims claims) {
