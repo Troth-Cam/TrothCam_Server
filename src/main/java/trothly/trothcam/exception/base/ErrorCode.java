@@ -27,6 +27,8 @@ public enum ErrorCode { // BaseResponseStatus와 같은 역할
     DUPLICATED_MEMBER(2009, "중복된 WEB 토큰 입니다.", BAD_REQUEST),
     INVALID_PROVIDER(2010, "잘못된 PROVIDER 입니다.", BAD_REQUEST),
     TOKEN_EXPIRED(2011, "토큰 유효시간이 만료되었습니다.", BAD_REQUEST),
+    ALREADY_LOGOUT(2012, "이미 로그아웃 되었습니다.", BAD_REQUEST),
+
 
     /**
      * 3000 : Response 오류
