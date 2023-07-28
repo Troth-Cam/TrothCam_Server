@@ -36,7 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/auth/google", "/auth/validate-token",
                 "/auth/check-id", "/auth/signup",
                 "/auth/login", "/auth/logout",
-                "/h2-console/**", "/sample/**");
+                "/h2-console/**", "/health-check", "/sample/**");
     }
 
     // 스프링시큐리티 설정
@@ -60,6 +60,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/auth/login").permitAll()
                 .antMatchers("/auth/logout").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
+                .antMatchers("/health-check").permitAll()
                 .antMatchers("/sample/**").permitAll()
                 //.antMatchers("/**").permitAll()     // 로그인 개발 끝나면 삭제
                 .anyRequest().authenticated()
