@@ -29,8 +29,8 @@ public class ImageController {
         return BaseResponse.onSuccess(res);
     }
 
-    /* 인증 */
-    @GetMapping("/authenticate")
+    /* 인증 (swift에서 Alamofire 사용 시 get방식에서 json으로 request body 받을 수 없음) */
+    @PostMapping("/authenticate")
     public BaseResponse<CheckImgHashResDto> checkImgHash(@RequestBody ImgHashReqDto req) {
         if(req.getImageHash() == null) {
             throw new BadRequestException("해시 값을 찾을 수 없습니다.");
