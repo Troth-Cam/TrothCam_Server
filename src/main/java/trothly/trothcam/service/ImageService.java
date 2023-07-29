@@ -1,6 +1,7 @@
 package trothly.trothcam.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.image.Image;
@@ -17,12 +18,23 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ImageService {
 
     private final ImageRepository imageRepository;
 
     // 이미지 해시 값 받아서 저장
-    public SaveImgHashResDto saveImgHash(ImgHashReqDto req, Member member) {
+    public SaveImgHashResDto saveImgHash(ImgHashReqDto req, Member member) throws BaseException {
+        Optional<Image> imgHash = imageRepository.findByImageHash(req.getImageHash());
+
+        log.info("imgHash : " + imgHash);
+        log.info("imgHash.get : " + imgHash.get().getImageHash());
+        log.info("req.get : " + req.getImageHash());
+
+        if(imgHash.isPresent()){
+            throw new BadRequestException("이미 존재하는 해시 값입니다.");
+        }
+
         Image image = imageRepository.save(new Image(req.getImageHash(), member));
 
         return new SaveImgHashResDto(image.getId());
