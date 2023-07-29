@@ -27,10 +27,6 @@ public class ImageService {
     public SaveImgHashResDto saveImgHash(ImgHashReqDto req, Member member) throws BaseException {
         Optional<Image> imgHash = imageRepository.findByImageHash(req.getImageHash());
 
-        log.info("imgHash : " + imgHash);
-        log.info("imgHash.get : " + imgHash.get().getImageHash());
-        log.info("req.get : " + req.getImageHash());
-
         if(imgHash.isPresent()){
             throw new BadRequestException("이미 존재하는 해시 값입니다.");
         }
