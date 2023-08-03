@@ -10,4 +10,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByWebId(String webId);
     boolean existsByWebId(String webId);
     Optional<Member> findByWebToken(String webToken);
+    Optional<Member> findByRefreshToken(String refreshToken);
+    Optional<Member> findByAppleSub(String sub);
 }

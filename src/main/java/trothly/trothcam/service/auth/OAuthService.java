@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.dto.auth.TokenDto;
+import trothly.trothcam.dto.auth.apple.AppleInfo;
 import trothly.trothcam.dto.auth.apple.LoginReqDto;
 import trothly.trothcam.dto.auth.apple.LoginResDto;
 //import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import static trothly.trothcam.exception.base.ErrorCode.ALREADY_LOGOUT;
 import static trothly.trothcam.exception.base.ErrorCode.MEMBER_NOT_FOUND;
 
 @Slf4j
@@ -77,29 +79,45 @@ public class OAuthService {
     // 애플 로그인
     @Transactional
     public LoginResDto appleLogin(LoginReqDto loginReqDto) throws BaseException {
-        // identity token으로 email값 얻어오기
-        String email = appleOAuthUserProvider.getEmailFromToken(loginReqDto.getIdToken());
-        log.info(email);
+        // 1. trothcam apple login 최초 1회인 경우 email 뽑기
+        // 2. 아닌 경우 일치하는 sub 값이 db에 있는지 검사
+        // 3. email도 없고, sub도 없으면 에러 처리
 
-        // email이 null인 경우 : email 동의 안한 경우
-        if(email == null)
-            throw new BaseException(ErrorCode.NOT_AGREE_EMAIL);
+        // 1. identity token으로 email, sub 값 추출
+        AppleInfo appleInfo = appleOAuthUserProvider.getAppleInfoFromToken(loginReqDto.getIdToken());
+        String email = appleInfo.getEmail();
+        String sub = appleInfo.getSub();
+
+        Optional<Member> checkSub = memberRepository.findByAppleSub(sub);
+        if(checkSub.isPresent()) {   // 2. email X + sub O (refreshToken 만료 후 재로그인) -> 이미 회원가입한 경우
+            return afterSignup(checkSub.get());
+        } else if(email == null) { // 3. email X + sub X
+            throw new InvalidTokenException("Apple OAuth Identity Token 값이 올바르지 않습니다.");
+        }
 
         Optional<Member> getMember = memberRepository.findByEmail(email);
         Member member;
-        if(getMember.isPresent()){  // 이미 회원가입한 회원인 경우
+        if(getMember.isPresent()){  // 3. email O + sub O -> 이미 회원가입한 회원인 경우
             member = getMember.get();
-            if(!member.getProvider().equals(Provider.APPLE))   // 이미 회원가입했지만 APPLE이 아닌 다른 소셜 로그인 사용
+            if(!member.getProvider().equals(Provider.APPLE))   // 4. 이미 회원가입했지만 APPLE이 아닌 다른 소셜 로그인 사용
                 throw new InvalidProviderException("GOOGLE로 회원가입한 회원입니다.");
         } else {    // 아직 회원가입 하지 않은 회원인 경우
             member = memberRepository.save(
                     Member.builder()
                         .email(email)
+                        .appleSub(sub)
                         .provider(Provider.APPLE)
                         .build()
             );
         }
 
+        // refreshToken, accessToken, webToken 발급
+        return afterSignup(member);
+    }
+
+    // refreshToken, accessToken, webToken 발급
+    @Transactional
+    public LoginResDto afterSignup(Member member) {
         // accessToken, refreshToken 발급
         String newAccessToken = jwtService.encodeJwtToken(new TokenDto(member.getId()));
         String newRefreshToken = jwtService.encodeJwtRefreshToken(member.getId());
@@ -202,16 +220,15 @@ public class OAuthService {
 
     // 로그아웃
     @Transactional
-    public String logout(String accessToken) {
-        if(!jwtService.validateToken(accessToken))
-            throw new UnauthorizedException("유효하지 않거나 만료된 토큰입니다.");
-
-        Long memberId = jwtService.getMemberIdFromJwtToken(accessToken);
-        Optional<Member> getMember = memberRepository.findById(memberId);
+    public String logout(String refreshToken) {
+        Optional<Member> getMember = memberRepository.findByRefreshToken(refreshToken);
         if(getMember.isEmpty())
             throw new BaseException(MEMBER_NOT_FOUND);
 
         Member member = getMember.get();
+        if(member.getRefreshToken().equals(""))
+            throw new BaseException(ALREADY_LOGOUT);
+
         member.refreshTokenExpires();
         memberRepository.save(member);
 
