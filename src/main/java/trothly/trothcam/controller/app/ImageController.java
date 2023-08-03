@@ -13,7 +13,7 @@ import trothly.trothcam.service.ImageService;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/image")
+@RequestMapping("/api/image")
 public class ImageController {
 
     private final ImageService imageService;
