@@ -35,6 +35,10 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+        
+      - name: Build with Gradle
+        run: ./gradlew build -x test
+        shell: bash
 
       - name: create Apple_AuthKey File
         if: contains(github.ref, 'main')
@@ -46,14 +50,10 @@ jobs:
           echo "${{ secrets.APPLE_AUTH_KEY }}" > ./AuthKey_9LA3NLSR6X.p8
         shell: bash
         
-      - name: Build with Gradle
-        run: ./gradlew build -x test
-        shell: bash
-
       - name: create application-prod.yml
         if: contains(github.ref, 'main')
         run: |
-          cd ./src/main/resources
+          cd ./..
           touch ./application-prod.yml
           echo "${{ secrets.PROPERTIES_PROD }}" > ./application-prod.yml
         shell: bash
