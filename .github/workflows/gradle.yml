@@ -52,7 +52,7 @@ jobs:
         if: contains(github.ref, 'main')
         run: |
           cd ./src/main/resources/key
-          touce ./AuthKey_9LA3NLSR6X.p8
+          touch ./AuthKey_9LA3NLSR6X.p8
           echo "${{ secrets.APPLE_AUTH_KEY }}" > ./AuthKey_9LA3NLSR6X.p8
         shell: bash
         
