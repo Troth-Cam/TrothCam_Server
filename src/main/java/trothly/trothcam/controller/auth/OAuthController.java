@@ -114,8 +114,8 @@ public class OAuthController {
 
     // 애플 로그인 -> 회원 탈퇴
     @DeleteMapping("/apple-revoke")
-    public BaseResponse<String> appleRevoke(@AuthenticationPrincipal Member member, String refreshToken) throws IOException {
-        oauthService.appleRevoke(refreshToken);
+    public BaseResponse<String> appleRevoke(@AuthenticationPrincipal Member member, @RequestBody RefreshTokenReqDto refreshToken) throws IOException {
+        oauthService.appleRevoke(refreshToken.getRefreshToken());
         String result = oauthService.updateStatus(member);
         return BaseResponse.onSuccess(result);
     }
