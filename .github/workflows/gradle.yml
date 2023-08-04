@@ -39,23 +39,23 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build -x test
         shell: bash
-
-      - name: create Apple_AuthKey File
-        if: contains(github.ref, 'main')
-        run: |
-          cd ./src/main/resources
-          mkdir key
-          cd ./key
-          touch ./AuthKey_9LA3NLSR6X.p8
-          echo "${{ secrets.APPLE_AUTH_KEY }}" > ./AuthKey_9LA3NLSR6X.p8
-        shell: bash
         
       - name: create application-prod.yml
         if: contains(github.ref, 'main')
         run: |
-          cd ./..
+          cd ./src/main/resources
           touch ./application-prod.yml
           echo "${{ secrets.PROPERTIES_PROD }}" > ./application-prod.yml
+        shell: bash
+
+      - name: create Apple_AuthKey File
+        if: contains(github.ref, 'main')
+        run: |
+          mkdir key
+          cd ./key
+          touch ./AuthKey_9LA3NLSR6X.p8
+          echo "${{ secrets.APPLE_AUTH_KEY }}" > ./AuthKey_9LA3NLSR6X.p8
+          cd ..
         shell: bash
         
       - name: Build With Gradle
