@@ -80,7 +80,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private CorsConfiguration getDefaultCorsConfiguration() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(
-                Arrays.asList("http://localhost:8080"));
+                Arrays.asList("http://localhost:8080", "https://trothly.com", "http://localhost:3000"));
         configuration.setAllowedHeaders(Arrays.asList("*")); // 모든 header 에 응답을 허용
         configuration.setAllowedMethods(Arrays.asList("*")); // 모든 get,post,patch,put,delete 요청 허용
         configuration.setAllowedOrigins(Arrays.asList("*")); // 모든 ip 응답을 허용
