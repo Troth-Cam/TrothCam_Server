@@ -30,6 +30,8 @@ import trothly.trothcam.service.auth.OAuthService;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static trothly.trothcam.exception.base.ErrorCode.REQUEST_ERROR;
 
@@ -110,10 +112,11 @@ public class OAuthController {
             throw new UnauthorizedException("유효하지 않거나 만료된 토큰입니다.");
     }
 
-    // 회원 탈퇴
-    @DeleteMapping("/withdraw")
-    public BaseResponse<String> withdraw(@AuthenticationPrincipal Member member) {
-        String result = oauthService.withdraw(member);
+    // 애플 로그인 -> 회원 탈퇴
+    @DeleteMapping("/apple-revoke")
+    public BaseResponse<String> appleRevoke(@AuthenticationPrincipal Member member, String refreshToken) throws IOException {
+        oauthService.appleRevoke(refreshToken);
+        String result = oauthService.updateStatus(member);
         return BaseResponse.onSuccess(result);
     }
 

@@ -6,10 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 //import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import trothly.trothcam.auth.apple.PublicKeyGenerator;
 import trothly.trothcam.dto.auth.global.ProfileResDto;
 import trothly.trothcam.dto.auth.global.TokenDto;
 import trothly.trothcam.dto.auth.apple.AppleInfo;
@@ -30,7 +32,16 @@ import trothly.trothcam.service.JwtService;
 import javax.servlet.http.HttpServletResponse;
 //import javax.transaction.Transactional;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static trothly.trothcam.exception.base.ErrorCode.ALREADY_LOGOUT;
 import static trothly.trothcam.exception.base.ErrorCode.MEMBER_NOT_FOUND;
@@ -39,8 +50,12 @@ import static trothly.trothcam.exception.base.ErrorCode.MEMBER_NOT_FOUND;
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
+    @Value("${oauth.apple.client-id}")
+    private String clientId;
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final AppleOAuthUserProvider appleOAuthUserProvider;
+    private final PublicKeyGenerator publicKeyGenerator;
 
     private final MemberRepository memberRepository;
 //    private final RedisTemplate<String, String> redisTemplate;
@@ -233,17 +248,49 @@ public class OAuthService {
         return "로그아웃 성공";
     }
 
-    // 회원탈퇴
-    @Transactional
-    public String withdraw(Member member) {
+    // 애플 로그인 -> 회원 탈퇴
+    public void appleRevoke(String refreshToken) throws IOException {
+        String url = "https://appleid.apple.com/auth/revoke";
+        String clientSecret = publicKeyGenerator.createClientSecret();
+
+        Map<String, String> params = new HashMap<>();
+        params.put("client_secret", clientSecret);
+        params.put("token", refreshToken);
+        params.put("client_id", clientId);
+
+        try {
+            HttpRequest getRequest = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .POST(getParamsUrlEncoded(params))
+                    .headers("Content-Type", "application/x-www-form-urlencoded")
+                    .build();
+
+            HttpClient httpClient = HttpClient.newHttpClient();
+            httpClient.send(getRequest, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public HttpRequest.BodyPublisher getParamsUrlEncoded(Map<String, String> parameters) {
+        String urlEncoded = parameters.entrySet()
+                .stream()
+                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+        return HttpRequest.BodyPublishers.ofString(urlEncoded);
+    }
+
+    // 회원탈퇴 후 status 변경
+    public String updateStatus(Member member) {
         Optional<Member> getMember = memberRepository.findById(member.getId());
         if(getMember.isEmpty())
             throw new BaseException(MEMBER_NOT_FOUND);
-
-        memberRepository.delete(member);
+        
+        member.updateStatus("inactive");
+        memberRepository.save(member);
         return "회원탈퇴 성공";
     }
-
+    
     // 개인정보 조회
     public ProfileResDto getProfile(Member member) {
         Optional<Member> getMember = memberRepository.findById(member.getId());

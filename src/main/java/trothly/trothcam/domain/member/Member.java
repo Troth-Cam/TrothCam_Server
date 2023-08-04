@@ -1,6 +1,7 @@
 package trothly.trothcam.domain.member;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import trothly.trothcam.domain.core.BaseTimeEntity;
@@ -33,6 +34,10 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Column(name = "image", length = 255, nullable = true)
     private String image;
 
+    @Column(name = "status", nullable = false)
+    @ColumnDefault("'active'")
+    private String status;
+
     @Column(name = "provider", nullable = false)
     @Enumerated(EnumType.STRING)
     private Provider provider;
@@ -63,6 +68,11 @@ public class Member extends BaseTimeEntity implements UserDetails {
     public void refreshTokenExpires() {
         this.refreshToken = "";
         this.refreshTokenExpiresAt = LocalDateTime.now();
+    }
+
+    // status 변경
+    public void updateStatus(String status) {
+        this.status = status;
     }
 
     /* 웹 */

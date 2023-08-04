@@ -1,6 +1,7 @@
 package trothly.trothcam.auth.apple;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -9,6 +10,9 @@ import trothly.trothcam.dto.auth.apple.ApplePublicKeys;
 import trothly.trothcam.exception.custom.InvalidTokenException;
 
 import java.security.PublicKey;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Map;
 import java.util.logging.Logger;
 
