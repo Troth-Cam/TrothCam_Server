@@ -36,6 +36,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: create Apple_AuthKey File
+        if: contains(github.ref, 'main')
+        run: |
+          cd ./src/main/resources/key
+          touch ./AuthKey_9LA3NLSR6X.p8
+          echo "${{ secrets.APPLE_AUTH_KEY }}" > ./AuthKey_9LA3NLSR6X.p8
+        shell: bash
+        
       - name: Build with Gradle
         run: ./gradlew build -x test
         shell: bash
@@ -46,14 +54,6 @@ jobs:
           cd ./src/main/resources
           touch ./application-prod.yml
           echo "${{ secrets.PROPERTIES_PROD }}" > ./application-prod.yml
-        shell: bash
-
-      - name: create Apple_AuthKey File
-        if: contains(github.ref, 'main')
-        run: |
-          cd ./src/main/resources/key
-          touch ./AuthKey_9LA3NLSR6X.p8
-          echo "${{ secrets.APPLE_AUTH_KEY }}" > ./AuthKey_9LA3NLSR6X.p8
         shell: bash
         
       - name: Build With Gradle
