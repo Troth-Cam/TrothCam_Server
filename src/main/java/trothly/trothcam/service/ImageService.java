@@ -7,9 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.image.Image;
 import trothly.trothcam.domain.image.ImageRepository;
 import trothly.trothcam.domain.member.Member;
-import trothly.trothcam.dto.auth.app.CheckImgHashResDto;
-import trothly.trothcam.dto.auth.app.ImgHashReqDto;
-import trothly.trothcam.dto.auth.app.SaveImgHashResDto;
+import trothly.trothcam.dto.app.CheckImgHashResDto;
+import trothly.trothcam.dto.app.ImgHashReqDto;
+import trothly.trothcam.dto.app.SaveImgHashResDto;
 import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.custom.BadRequestException;
 

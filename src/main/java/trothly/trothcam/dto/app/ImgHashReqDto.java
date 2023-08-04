@@ -1,4 +1,4 @@
-package trothly.trothcam.dto.auth.app;
+package trothly.trothcam.dto.app;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import trothly.trothcam.domain.member.*;
-import trothly.trothcam.dto.auth.TokenDto;
+import trothly.trothcam.dto.auth.global.TokenDto;
 import trothly.trothcam.exception.custom.BadRequestException;
 import trothly.trothcam.exception.custom.UnauthorizedException;
 import trothly.trothcam.jwt.JwtAuthenticationFilter;

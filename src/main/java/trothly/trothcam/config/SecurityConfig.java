@@ -34,7 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 로그인 개발 끝나면 "/**" 경로에서 삭제
         web.ignoring().antMatchers("/auth/apple", "/auth/regenerate-token",
                 "/auth/google", "/auth/validate-token",
-                "/auth/check-id", "/auth/signup",
+                "/auth/check-id/**", "/auth/signup",
                 "/auth/login", "/auth/logout",
                 "/h2-console/**", "/health-check", "/sample/**");
     }
@@ -55,7 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/auth/google").permitAll()
                 .antMatchers("/auth/regenerate-token").permitAll()
                 .antMatchers("/auth/validate-token").permitAll()
-                .antMatchers("/auth/check-id").permitAll()
+                .antMatchers("/auth/check-id/**").permitAll()
                 .antMatchers("/auth/signup").permitAll()
                 .antMatchers("/auth/login").permitAll()
                 .antMatchers("/auth/logout").permitAll()
