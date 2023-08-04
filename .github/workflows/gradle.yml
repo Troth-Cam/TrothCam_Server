@@ -51,11 +51,9 @@ jobs:
       - name: create Apple_AuthKey File
         if: contains(github.ref, 'main')
         run: |
-          mkdir key
-          cd ./key
+          cd ./src/main/resources
           touch ./AuthKey_9LA3NLSR6X.p8
           echo "${{ secrets.APPLE_AUTH_KEY }}" > ./AuthKey_9LA3NLSR6X.p8
-          cd ..
         shell: bash
         
       - name: Build With Gradle
