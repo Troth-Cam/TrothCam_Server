@@ -1,4 +1,4 @@
-package trothly.trothcam.dto.auth;
+package trothly.trothcam.dto.auth.global;
 
 import lombok.Getter;
 

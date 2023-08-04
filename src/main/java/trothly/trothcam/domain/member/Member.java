@@ -4,8 +4,6 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import trothly.trothcam.domain.core.BaseTimeEntity;
-import trothly.trothcam.dto.auth.TokenDto;
-import trothly.trothcam.service.JwtService;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;

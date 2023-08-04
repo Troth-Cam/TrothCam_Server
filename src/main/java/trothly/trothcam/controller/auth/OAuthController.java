@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
+import trothly.trothcam.dto.auth.global.ProfileResDto;
 import trothly.trothcam.dto.auth.web.LoginWebReqDto;
 import trothly.trothcam.dto.auth.web.LoginWebResDto;
 import trothly.trothcam.exception.base.BaseException;
@@ -107,5 +108,19 @@ public class OAuthController {
             return BaseResponse.onSuccess(result);
         } else
             throw new UnauthorizedException("유효하지 않거나 만료된 토큰입니다.");
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/withdraw")
+    public BaseResponse<String> withdraw(@AuthenticationPrincipal Member member) {
+        String result = oauthService.withdraw(member);
+        return BaseResponse.onSuccess(result);
+    }
+
+    // 개인 정보 조회
+    @GetMapping("/profile")
+    public BaseResponse<ProfileResDto> getProfile(@AuthenticationPrincipal Member member) {
+        ProfileResDto profile = oauthService.getProfile(member);
+        return BaseResponse.onSuccess(profile);
     }
 }

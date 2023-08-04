@@ -1,13 +1,10 @@
 package trothly.trothcam.service.auth;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.member.MemberRepository;
-import trothly.trothcam.dto.auth.TokenDto;
 import trothly.trothcam.dto.auth.web.ValidateWebTokenReqDto;
 import trothly.trothcam.dto.auth.web.ValidateWebTokenResDto;
 import trothly.trothcam.exception.base.BaseException;
@@ -16,10 +13,7 @@ import trothly.trothcam.exception.custom.BadRequestException;
 import trothly.trothcam.exception.custom.SignupException;
 import trothly.trothcam.service.JwtService;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.Date;
 import java.util.Optional;
 
 import static trothly.trothcam.exception.base.ErrorCode.MEMBER_NOT_FOUND;
