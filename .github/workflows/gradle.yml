@@ -39,7 +39,9 @@ jobs:
       - name: create Apple_AuthKey File
         if: contains(github.ref, 'main')
         run: |
-          cd ./src/main/resources/key
+          cd ./src/main/resources
+          mkdir key
+          cd ./key
           touch ./AuthKey_9LA3NLSR6X.p8
           echo "${{ secrets.APPLE_AUTH_KEY }}" > ./AuthKey_9LA3NLSR6X.p8
         shell: bash
