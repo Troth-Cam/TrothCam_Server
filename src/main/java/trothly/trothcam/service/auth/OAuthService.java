@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.auth.apple.PublicKeyGenerator;
+import trothly.trothcam.dto.auth.apple.AppleToken;
 import trothly.trothcam.dto.auth.global.ProfileResDto;
 import trothly.trothcam.dto.auth.global.TokenDto;
 import trothly.trothcam.dto.auth.apple.AppleInfo;
@@ -249,15 +250,19 @@ public class OAuthService {
     }
 
     // 애플 로그인 -> 회원 탈퇴
-    public void appleRevoke(String refreshToken) throws IOException {
+    public void appleRevoke(String authorizationCode) throws IOException {
         String url = "https://appleid.apple.com/auth/revoke";
         String clientSecret = publicKeyGenerator.createClientSecret();
+        AppleToken.Response response = appleOAuthUserProvider.getToken(authorizationCode, clientSecret);
 
         Map<String, String> params = new HashMap<>();
         params.put("client_secret", clientSecret);
-        params.put("token", refreshToken);
+        params.put("token", response.getRefresh_token());
         params.put("client_id", clientId);
 
+        logger.info("client_secret : " + clientSecret);
+        logger.info("token : ", response.getRefresh_token());
+        logger.info("client_id : " + clientId);
         try {
             HttpRequest getRequest = HttpRequest.newBuilder()
                     .uri(new URI(url))

@@ -14,6 +14,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import trothly.trothcam.domain.member.Member;
+import trothly.trothcam.dto.auth.apple.AuthorizationReqDto;
 import trothly.trothcam.dto.auth.apple.RefreshTokenReqDto;
 import trothly.trothcam.dto.auth.global.ProfileResDto;
 import trothly.trothcam.dto.auth.web.LoginWebReqDto;
@@ -113,9 +114,9 @@ public class OAuthController {
     }
 
     // 애플 로그인 -> 회원 탈퇴
-    @DeleteMapping("/apple-revoke")
-    public BaseResponse<String> appleRevoke(@AuthenticationPrincipal Member member, @RequestBody RefreshTokenReqDto refreshToken) throws IOException {
-        oauthService.appleRevoke(refreshToken.getRefreshToken());
+    @PatchMapping("/apple-revoke")
+    public BaseResponse<String> appleRevoke(@AuthenticationPrincipal Member member, @RequestBody AuthorizationReqDto authReqDto) throws IOException {
+        oauthService.appleRevoke(authReqDto.getAuthorizationCode());
         String result = oauthService.updateStatus(member);
         return BaseResponse.onSuccess(result);
     }
