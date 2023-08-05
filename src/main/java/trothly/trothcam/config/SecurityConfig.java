@@ -65,6 +65,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //.antMatchers("/**").permitAll()     // 로그인 개발 끝나면 삭제
                 .anyRequest().authenticated()
                 .and()
+                .headers().frameOptions().sameOrigin()
+                .and()
                 // JwtAuthenticationFilter 보다 jwtExceptionFilter를 먼저 실행
                 .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
     }
