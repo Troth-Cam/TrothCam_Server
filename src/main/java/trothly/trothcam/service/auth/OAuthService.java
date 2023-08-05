@@ -113,6 +113,10 @@ public class OAuthService {
         Member member;
         if(getMember.isPresent()){  // 3. email O + sub O -> 이미 회원가입한 회원인 경우
             member = getMember.get();
+            // inactive -> active로 변환
+            member.updateStatus("active");
+            memberRepository.save(member);
+
             if(!member.getProvider().equals(Provider.APPLE))   // 4. 이미 회원가입했지만 APPLE이 아닌 다른 소셜 로그인 사용
                 throw new InvalidProviderException("GOOGLE로 회원가입한 회원입니다.");
         } else {    // 아직 회원가입 하지 않은 회원인 경우
