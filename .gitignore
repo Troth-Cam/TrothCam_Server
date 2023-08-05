@@ -38,8 +38,8 @@ out/
 
 ### Security Files ###
 #src/main/resources/application-secret.yml
-#src/main/resources/application-prod.yml
-src/main/resources/key/AuthKey_9LA3NLSR6X.p8
+src/main/resources/application-prod.yml
+src/main/resources/AuthKey_9LA3NLSR6X.p8
 
 ### Log Files ###
 *.log

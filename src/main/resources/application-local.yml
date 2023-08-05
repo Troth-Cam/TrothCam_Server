@@ -2,6 +2,8 @@ spring:
   h2:
     console:
       enabled: true
+      settings:
+        web-allow-others: true
   datasource:
     url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
@@ -31,7 +33,7 @@ oauth:
     iss: ${APPLE_ISSUE}
     client-id: ${APPLE_BUNDLE_ID}
     key:
-      path: /key/AuthKey_9LA3NLSR6X.p8
+      path: AuthKey_9LA3NLSR6X.p8
 
 jwt:
   secret: ${JWT_SECRET}
