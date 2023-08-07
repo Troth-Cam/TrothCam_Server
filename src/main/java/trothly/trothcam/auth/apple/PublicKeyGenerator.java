@@ -77,13 +77,11 @@ public class PublicKeyGenerator {
 
     // Client Secret 발급
     public String createClientSecret() throws IOException {
-        log.info("clientSecret 들어옴");
         // 애플에서 유효기간 최대 30일 권고
         Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
 
         try {
             PrivateKey privateKey = getPrivateKey();
-            log.info("toString: " + privateKey.toString());
             log.info("jwt : " + Jwts.builder()
                     .setHeaderParam(KEY_ID_HEADER_KEY, "9LA3NLSR6X")
                     .setHeaderParam(SIGN_ALGORITHM_HEADER_KEY, "ES256")
@@ -111,11 +109,11 @@ public class PublicKeyGenerator {
     }
 
     public PrivateKey getPrivateKey() throws IOException {
-        log.info("privatekey 생성하러 들어옴");
         ClassPathResource resource = new ClassPathResource(path);
+        log.info("resource uri : " + Paths.get(resource.getURI()));
         String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
-
         log.info("privatekey : " + privateKey);
+
         Reader pemReader = new StringReader(privateKey);
         PEMParser pemParser = new PEMParser(pemReader);
         JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
