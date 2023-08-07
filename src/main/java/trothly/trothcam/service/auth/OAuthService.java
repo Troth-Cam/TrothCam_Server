@@ -113,9 +113,6 @@ public class OAuthService {
         Member member;
         if(getMember.isPresent()){  // 3. email O + sub O -> 이미 회원가입한 회원인 경우
             member = getMember.get();
-            // inactive -> active로 변환
-            member.updateStatus("active");
-            memberRepository.save(member);
 
             if(!member.getProvider().equals(Provider.APPLE))   // 4. 이미 회원가입했지만 APPLE이 아닌 다른 소셜 로그인 사용
                 throw new InvalidProviderException("GOOGLE로 회원가입한 회원입니다.");
@@ -144,8 +141,8 @@ public class OAuthService {
 //        redisTemplate.opsForValue().set(member.getId().toString(), newRefreshToken, 14L, TimeUnit.SECONDS);
 //        log.info("redis에 저장된 refreshToken : " + newRefreshToken + "\nmember.getId : " + member.getId().toString());
 
-        // DB에 refreshToken 저장
-        member.updateRefreshToken(newRefreshToken);
+        member.updateRefreshToken(newRefreshToken);     // DB에 refreshToken 저장
+        member.updateStatus("active");                  // inactive -> active로 변환
         memberRepository.save(member);
 
         webTokenService.encodeWebToken(member.getId(), member.getCreatedAt());
@@ -264,9 +261,6 @@ public class OAuthService {
         params.put("token", response.getRefresh_token());
         params.put("client_id", clientId);
 
-        logger.info("client_secret : " + clientSecret);
-        logger.info("token : ", response.getRefresh_token());
-        logger.info("client_id : " + clientId);
         try {
             HttpRequest getRequest = HttpRequest.newBuilder()
                     .uri(new URI(url))
