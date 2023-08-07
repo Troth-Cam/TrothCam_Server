@@ -111,9 +111,9 @@ public class JwtService {
             Jws<Claims> claims = Jwts.parser()
                     .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
                             StandardCharsets.UTF_8))).parseClaimsJws(token);
-            Long memberId = claims.getBody().get("memberId", Long.class);
-            log.info("validateToken ------- memberId : " + memberId);
-            return true;
+//            Long memberId = claims.getBody().get("memberId", Long.class);
+//            log.info("validateToken ------- memberId : " + memberId);
+            return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
             throw new UnauthorizedException("유효하지 않거나 만료된 토큰입니다.");
         }
