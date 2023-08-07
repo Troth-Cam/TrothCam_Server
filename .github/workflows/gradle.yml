@@ -39,8 +39,7 @@ jobs:
           cd ./src/main/resources
           touch ./AuthKey_9LA3NLSR6X.p8
           echo "${{ secrets.APPLE_AUTH_KEY }}" > ./AuthKey_9LA3NLSR6X.p8
-          pwd
-          ls -al
+          cat ./AuthKey_9LA3NLSR6X.p8
         shell: bash
         
       - name: create application-prod.yml
