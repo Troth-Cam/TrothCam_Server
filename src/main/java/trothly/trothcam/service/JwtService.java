@@ -107,13 +107,15 @@ public class JwtService {
 
     // 토큰 유효성 + 만료일자 확인
     public Boolean validateToken(String token) {
+        Date now = new Date();
+
         try {
             Jws<Claims> claims = Jwts.parser()
                     .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
                             StandardCharsets.UTF_8))).parseClaimsJws(token);
 //            Long memberId = claims.getBody().get("memberId", Long.class);
 //            log.info("validateToken ------- memberId : " + memberId);
-            return !claims.getBody().getExpiration().before(new Date());
+            return !claims.getBody().getExpiration().before(new Date(now.getTime()));
         } catch (Exception e) {
             throw new UnauthorizedException("유효하지 않거나 만료된 토큰입니다.");
         }
