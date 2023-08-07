@@ -15,9 +15,11 @@ import trothly.trothcam.dto.auth.apple.ApplePublicKey;
 import trothly.trothcam.dto.auth.apple.ApplePublicKeys;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
@@ -110,10 +112,9 @@ public class PublicKeyGenerator {
 
     public PrivateKey getPrivateKey() throws IOException {
         log.info("path: " + path);
-        ClassPathResource resource = new ClassPathResource("AuthKey_9LA3NLSR6X.p8");
-
-        log.info("resource uri : " + Paths.get(resource.getURI()));
-        String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(path); // Auth.p8 파일의 경로에 맞게 수정
+        String privateKey = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         log.info("privatekey : " + privateKey);
 
         Reader pemReader = new StringReader(privateKey);
