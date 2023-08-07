@@ -81,6 +81,8 @@ public class PublicKeyGenerator {
         Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
 
         try {
+            PrivateKey privateKey = getPrivateKey();
+            log.info("toString: " + privateKey.toString());
             return Jwts.builder()
                     .setHeaderParam(KEY_ID_HEADER_KEY, "9LA3NLSR6X")
                     .setHeaderParam(SIGN_ALGORITHM_HEADER_KEY, "ES256")
@@ -100,10 +102,12 @@ public class PublicKeyGenerator {
         ClassPathResource resource = new ClassPathResource(path);
         String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
 
+        log.info("privatekey : " + privateKey);
         Reader pemReader = new StringReader(privateKey);
         PEMParser pemParser = new PEMParser(pemReader);
         JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
         PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
+        log.info("OK");
         return converter.getPrivateKey(object);
     }
 }
