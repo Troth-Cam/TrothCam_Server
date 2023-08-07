@@ -33,7 +33,7 @@ public class JwtService {
     private String JWT_SECRET;
     private final MemberRepository memberRepository;
     private final UserDetailServiceImpl userDetailService;
-    private Long tokenValidTime = 1000L * 60 * 60; // 1h
+    private Long tokenValidTime = 1000L * 60; // 1h
     private Long refreshTokenValidTime = 1000L * 60 * 60 * 24 * 7; // 7d
 
     // access token 생성
