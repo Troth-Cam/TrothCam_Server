@@ -2,6 +2,8 @@ package trothly.trothcam.domain.member;
 
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import trothly.trothcam.domain.core.BaseTimeEntity;
@@ -10,10 +12,13 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@DynamicInsert
+@DynamicUpdate
 @Table(name = "member")
 public class Member extends BaseTimeEntity implements UserDetails {
     @Id
@@ -61,7 +66,7 @@ public class Member extends BaseTimeEntity implements UserDetails {
     // refreshToken 재발급
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
-        this.refreshTokenExpiresAt = LocalDateTime.now();
+        this.refreshTokenExpiresAt = LocalDateTime.now().plusDays(7);
     }
 
     // 로그아웃 시 토큰 만료
