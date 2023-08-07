@@ -8,6 +8,7 @@ import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import trothly.trothcam.dto.auth.apple.ApplePublicKey;
@@ -81,7 +82,6 @@ public class PublicKeyGenerator {
         Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
 
         try {
-            PrivateKey privateKey = getPrivateKey();
             log.info("jwt : " + Jwts.builder()
                     .setHeaderParam(KEY_ID_HEADER_KEY, "9LA3NLSR6X")
                     .setHeaderParam(SIGN_ALGORITHM_HEADER_KEY, "ES256")
@@ -109,7 +109,9 @@ public class PublicKeyGenerator {
     }
 
     public PrivateKey getPrivateKey() throws IOException {
-        ClassPathResource resource = new ClassPathResource(path);
+        log.info("path: " + path);
+        ClassPathResource resource = new ClassPathResource("AuthKey_9LA3NLSR6X.p8");
+
         log.info("resource uri : " + Paths.get(resource.getURI()));
         String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
         log.info("privatekey : " + privateKey);
@@ -118,7 +120,6 @@ public class PublicKeyGenerator {
         PEMParser pemParser = new PEMParser(pemReader);
         JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
         PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
-        log.info("OK");
         return converter.getPrivateKey(object);
     }
 }
