@@ -252,8 +252,10 @@ public class OAuthService {
 
     // 애플 로그인 -> 회원 탈퇴
     public void appleRevoke(String authorizationCode) throws IOException {
+        logger.info("요청 들어옴");
         String url = "https://appleid.apple.com/auth/revoke";
         String clientSecret = publicKeyGenerator.createClientSecret();
+        logger.info("clientSecret : " + clientSecret);
         AppleToken.Response response = appleOAuthUserProvider.getToken(authorizationCode, clientSecret);
 
         Map<String, String> params = new HashMap<>();
