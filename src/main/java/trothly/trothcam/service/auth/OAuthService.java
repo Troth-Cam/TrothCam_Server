@@ -261,6 +261,10 @@ public class OAuthService {
         params.put("token", response.getRefresh_token());
         params.put("client_id", clientId);
 
+        logger.info("client_secret: " + clientSecret);
+        logger.info("token: " + response.getRefresh_token());
+        logger.info("client_id: " + clientId);
+
         try {
             HttpRequest getRequest = HttpRequest.newBuilder()
                     .uri(new URI(url))
@@ -270,6 +274,8 @@ public class OAuthService {
 
             HttpClient httpClient = HttpClient.newHttpClient();
             httpClient.send(getRequest, HttpResponse.BodyHandlers.ofString());
+
+            logger.info("apple revoke 완료");
         } catch (Exception e) {
             e.printStackTrace();
         }
