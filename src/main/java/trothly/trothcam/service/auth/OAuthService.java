@@ -254,17 +254,12 @@ public class OAuthService {
     public void appleRevoke(String authorizationCode) throws IOException {
         String url = "https://appleid.apple.com/auth/revoke";
         String clientSecret = publicKeyGenerator.createClientSecret();
-        logger.info("clientSecret : " + clientSecret);
         AppleToken.Response response = appleOAuthUserProvider.getToken(authorizationCode, clientSecret);
 
         Map<String, String> params = new HashMap<>();
         params.put("client_secret", clientSecret);
         params.put("token", response.getRefresh_token());
         params.put("client_id", clientId);
-
-        logger.info("client_secret: " + clientSecret);
-        logger.info("token: " + response.getRefresh_token());
-        logger.info("client_id: " + clientId);
 
         try {
             HttpRequest getRequest = HttpRequest.newBuilder()

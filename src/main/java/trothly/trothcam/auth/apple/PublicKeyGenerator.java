@@ -84,17 +84,6 @@ public class PublicKeyGenerator {
         Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
 
         try {
-            log.info("jwt : " + Jwts.builder()
-                    .setHeaderParam(KEY_ID_HEADER_KEY, "9LA3NLSR6X")
-                    .setHeaderParam(SIGN_ALGORITHM_HEADER_KEY, "ES256")
-                    .setIssuer("5JQS3FU5R6")
-                    .setIssuedAt(new Date(System.currentTimeMillis()))
-                    .setExpiration(expirationDate)
-                    .setAudience(iss)
-                    .setSubject(clientId)
-                    .signWith(SignatureAlgorithm.ES256, getPrivateKey())
-                    .compact());
-
             return Jwts.builder()
                     .setHeaderParam(KEY_ID_HEADER_KEY, "9LA3NLSR6X")
                     .setHeaderParam(SIGN_ALGORITHM_HEADER_KEY, "ES256")
@@ -111,11 +100,9 @@ public class PublicKeyGenerator {
     }
 
     public PrivateKey getPrivateKey() throws IOException {
-        log.info("path: " + path);
         ClassLoader classLoader = getClass().getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream(path); // Auth.p8 파일의 경로에 맞게 수정
         String privateKey = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        log.info("privatekey : " + privateKey);
 
         Reader pemReader = new StringReader(privateKey);
         PEMParser pemParser = new PEMParser(pemReader);
