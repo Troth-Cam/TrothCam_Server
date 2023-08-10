@@ -270,6 +270,8 @@ public class OAuthService {
 
             HttpClient httpClient = HttpClient.newHttpClient();
             httpClient.send(getRequest, HttpResponse.BodyHandlers.ofString());
+
+            logger.info("apple revoke 완료");
         } catch (Exception e) {
             e.printStackTrace();
         }
