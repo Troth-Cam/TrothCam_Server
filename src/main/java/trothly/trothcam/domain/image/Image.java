@@ -3,7 +3,6 @@ package trothly.trothcam.domain.image;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import trothly.trothcam.domain.Share;
 import trothly.trothcam.domain.core.BaseTimeEntity;
 import trothly.trothcam.domain.member.Member;
 
