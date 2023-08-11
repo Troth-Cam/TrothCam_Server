@@ -15,7 +15,7 @@ import trothly.trothcam.service.auth.SignupService;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
-public class SignupController { // TODO: JPA 결과로 자꾸 null을 반환하는데 왜 이럴까~~~~~@~@!~!@
+public class SignupController {
 
     private final SignupService signupService;
 

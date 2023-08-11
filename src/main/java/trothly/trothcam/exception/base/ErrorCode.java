@@ -35,6 +35,9 @@ public enum ErrorCode { // BaseResponseStatus와 같은 역할
      */
     // Common
     RESPONSE_ERROR(3000, "값을 불러오는데 실패하였습니다.", FORBIDDEN),
+    _NO_CONTENT(3001, "데이터가 존재하지 않습니다.", NO_CONTENT),
+
+    PRODUCT_NOT_FOUND(3002, "인증서가 존재하지 않습니다.", NO_CONTENT),
 
 
     /**

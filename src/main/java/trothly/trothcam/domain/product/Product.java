@@ -6,12 +6,13 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import trothly.trothcam.domain.Share;
+import trothly.trothcam.domain.image.Share;
 import trothly.trothcam.domain.core.BaseTimeEntity;
 import trothly.trothcam.domain.image.Image;
 import trothly.trothcam.domain.member.Member;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -33,6 +34,12 @@ public class Product extends BaseTimeEntity {
     @JoinColumn(name = "owner_id")
     private Member member;
 
+    @Column(name = "title", nullable = false)
+    private String title;
+
+    @Column(name = "tags", nullable = false)
+    private int tags;
+
     @Column(name = "price", nullable = false)
     private Long price;
 
@@ -48,6 +55,8 @@ public class Product extends BaseTimeEntity {
 
     @Column(name = "public_yn", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Share share;
+    private Public publicYn;
 
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 }
