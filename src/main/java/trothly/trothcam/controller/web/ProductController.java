@@ -1,13 +1,15 @@
 package trothly.trothcam.controller.web;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.product.Product;
+import trothly.trothcam.dto.web.ProductDetailResDto;
+import trothly.trothcam.dto.web.ProductReqDto;
 import trothly.trothcam.dto.web.ProductsResDto;
 import trothly.trothcam.exception.base.BaseResponse;
+import trothly.trothcam.exception.custom.BadRequestException;
 import trothly.trothcam.service.web.ProductService;
 
 import java.util.List;
@@ -34,4 +36,14 @@ public class ProductController {
 //        return new BaseResponse<ProductsResDto>(collect);
 //    }
 
+    /* 상품 detail 화면 조회 */  // 구현은 했으나 테스트 아직 못해봄
+//    @GetMapping("/product-detail")
+//    public BaseResponse<ProductDetailResDto> findProductDetail(@RequestBody ProductReqDto req, @AuthenticationPrincipal Member member) {
+//        if(req.getProductId() == null) {
+//            throw new BadRequestException("존재하지 않는 상품 아이디 입니다.");
+//        }
+//
+//        ProductDetailResDto res = productService.findProductDetail(req, member);
+//        return BaseResponse.onSuccess(res);
+//    }
 }

@@ -59,4 +59,8 @@ public class Product extends BaseTimeEntity {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    public void updateViews(int views) {
+        this.views = views;
+    }
 }
