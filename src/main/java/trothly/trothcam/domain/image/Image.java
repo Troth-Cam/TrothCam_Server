@@ -3,6 +3,8 @@ package trothly.trothcam.domain.image;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import trothly.trothcam.domain.core.BaseTimeEntity;
 import trothly.trothcam.domain.member.Member;
 
@@ -11,6 +13,8 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicInsert
+@DynamicUpdate
 @Table(name = "image")
 public class Image extends BaseTimeEntity {
 
