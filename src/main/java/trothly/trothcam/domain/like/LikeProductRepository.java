@@ -10,5 +10,5 @@ public interface LikeProductRepository extends JpaRepository<LikeProduct, Long> 
 
     Optional<LikeProduct> findByProductIdAndMemberId(Long productId, Long memberId);
 
-    Long countById(Long id);
+    Long countByProductId(Long productId);
 }

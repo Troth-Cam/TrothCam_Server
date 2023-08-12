@@ -8,12 +8,15 @@ import trothly.trothcam.domain.like.LikeProductRepository;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.product.Product;
 import trothly.trothcam.domain.product.ProductRepository;
-import trothly.trothcam.dto.web.LikeProductReqDto;
+import trothly.trothcam.dto.web.ProductReqDto;
 import trothly.trothcam.dto.web.LikeResDto;
 import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.custom.BadRequestException;
 
 import java.util.Optional;
+
+import static trothly.trothcam.exception.base.ErrorCode.ALREADY_LIKED;
+import static trothly.trothcam.exception.base.ErrorCode.NOT_LIKED;
 
 @Service
 @Transactional
@@ -24,11 +27,11 @@ public class LikeProductService {
     private final ProductRepository productRepository;
 
     // 좋아요 저장
-    public LikeResDto saveLike(LikeProductReqDto req, Member member) throws BaseException {
+    public LikeResDto saveLike(ProductReqDto req, Member member) {
         Optional<LikeProduct> like = likeProductRepository.findByProductIdAndMemberId(req.getProductId(), member.getId());
 
         if(like.isPresent()) {
-            throw new BadRequestException("이미 좋아요를 누른 상품입니다.");
+            throw new BaseException(ALREADY_LIKED);
         }
 
         Product product = productRepository.findById(req.getProductId()).orElseThrow(
@@ -41,9 +44,9 @@ public class LikeProductService {
     }
 
     // 좋아요 삭제
-    public LikeResDto deleteLike(LikeProductReqDto req, Member member) throws BaseException {
+    public LikeResDto deleteLike(ProductReqDto req, Member member) {
         LikeProduct likeProduct = likeProductRepository.findByProductIdAndMemberId(req.getProductId(), member.getId()).orElseThrow(
-                () -> new BadRequestException("좋아요를 누르지 않은 상품입니다.")
+                () -> new BaseException(NOT_LIKED)
         );
 
         likeProductRepository.deleteById(likeProduct.getId());
