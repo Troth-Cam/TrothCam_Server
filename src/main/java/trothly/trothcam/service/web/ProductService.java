@@ -32,6 +32,8 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final HistoryRepository historyRepository;
+    private final LikeProductRepository likeProductRepository;
 
 //
 //    /* 공개 인증서 조회 */
@@ -44,4 +46,33 @@ public class ProductService {
 //        return findProducts;
 //    }
 
+    /* 상품 detail 화면 조회 */
+    @Transactional(readOnly = true)
+    public ProductDetailResDto findProductDetail(ProductReqDto req, Member member) {
+        Boolean liked = false;
+
+        Product product = productRepository.findById(req.getProductId()).orElseThrow(
+                () -> new BadRequestException("존재하지 않는 상품입니다.")
+        );
+
+        // 조회수 갱신
+        product.updateViews(product.getViews() + 1);
+
+        Long likes = likeProductRepository.countByProductId(req.getProductId());
+
+        //좋아요 여부
+        Optional<LikeProduct> isLiked = likeProductRepository.findByProductIdAndMemberId(req.getProductId(), member.getId());
+
+        if(isLiked.isPresent()) {
+            liked = true;
+        } else {
+            liked = false;
+        }
+
+        List<History> histories = historyRepository.findAllByProductId(req.getProductId());
+
+        return new ProductDetailResDto(req.getProductId(), product.getImage().getId(), product.getMember().getId(), product.getTitle(),
+                product.getTags(), product.getPrice(), product.getDescription(),product.getViews(), likes, product.getPublicYn(), product.getCreatedAt(),
+                product.getLastModifiedAt(), liked, histories);
+    }
 }
