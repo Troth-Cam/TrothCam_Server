@@ -25,15 +25,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductService {
 
-    private final ProductRepository productRepository;
-
-    /* 공개 인증서 조회 */
-    @Transactional(readOnly = true)
-    public List<Product> findPublicProducts(String webId) throws BaseException {
-        List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn_Y(webId);
-        if (findProducts == null || findProducts.isEmpty())
-            throw new ProductNotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
-
-        return findProducts;
-    }
+//    private final ProductRepository productRepository;
+//
+//    /* 공개 인증서 조회 */
+//    @Transactional(readOnly = true)
+//    public List<Product> findPublicProducts(String webId) throws BaseException {
+//        List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn_Y(webId);
+//        if (findProducts == null || findProducts.isEmpty())
+//            throw new ProductNotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
+//
+//        return findProducts;
+//    }
 }
