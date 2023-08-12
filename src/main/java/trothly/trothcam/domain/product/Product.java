@@ -51,7 +51,7 @@ public class Product extends BaseTimeEntity {
     private int views;
 
     @Column(name = "likes", nullable = false)
-    private int likes;
+    private Long likes;
 
     @Column(name = "public_yn", nullable = false)
     @Enumerated(EnumType.STRING)

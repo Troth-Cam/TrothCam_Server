@@ -26,4 +26,9 @@ public class LikeProduct extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public LikeProduct(Product product, Member member){
+        this.product = product;
+        this.member = member;
+    }
 }
