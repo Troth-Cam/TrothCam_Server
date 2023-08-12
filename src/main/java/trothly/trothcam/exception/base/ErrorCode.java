@@ -28,6 +28,9 @@ public enum ErrorCode { // BaseResponseStatus와 같은 역할
     INVALID_PROVIDER(2010, "잘못된 PROVIDER 입니다.", BAD_REQUEST),
     TOKEN_EXPIRED(2011, "토큰 유효시간이 만료되었습니다.", BAD_REQUEST),
     ALREADY_LOGOUT(2012, "이미 로그아웃 되었습니다.", BAD_REQUEST),
+    ALREADY_LIKED(2013, "이미 좋아요를 누른 상품입니다.",BAD_REQUEST),
+    NOT_LIKED(2014, "좋아요를 누르지 않은 상품입니다.", BAD_REQUEST),
+    HISTORIES_NOT_FOUND(2015, "거래 내역이 존재하지 않습니다.", BAD_REQUEST),
 
 
     /**

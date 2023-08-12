@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import trothly.trothcam.domain.member.Member;
-import trothly.trothcam.dto.web.LikeProductReqDto;
+import trothly.trothcam.dto.web.ProductReqDto;
 import trothly.trothcam.dto.web.LikeResDto;
 import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.exception.custom.BadRequestException;
@@ -19,7 +19,7 @@ public class LikeProductController {
 
     /* 좋아요 저장 */
     @PostMapping("")
-    public BaseResponse<LikeResDto> saveLike(@RequestBody LikeProductReqDto req, @AuthenticationPrincipal Member member) {
+    public BaseResponse<LikeResDto> saveLike(@RequestBody ProductReqDto req, @AuthenticationPrincipal Member member) {
         if(req.getProductId() == null) {
             throw new BadRequestException("존재하지 않는 상품 아이디 입니다.");
         }
@@ -30,7 +30,7 @@ public class LikeProductController {
 
     /* 좋아요 삭제 */
     @DeleteMapping("")
-    public BaseResponse<LikeResDto> deleteLike(@RequestBody LikeProductReqDto req, @AuthenticationPrincipal Member member) {
+    public BaseResponse<LikeResDto> deleteLike(@RequestBody ProductReqDto req, @AuthenticationPrincipal Member member) {
         if(req.getProductId() == null) {
             throw new BadRequestException("존재하지 않는 상품 아이디 입니다.");
         }

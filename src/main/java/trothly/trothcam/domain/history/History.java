@@ -3,6 +3,8 @@ package trothly.trothcam.domain.history;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.product.Product;
 
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "history")
 public class History {
 
@@ -34,6 +37,7 @@ public class History {
     @Column(name = "price", nullable = false)
     private Long price;
 
+    @CreatedDate
     @Column(name = "sold_at", updatable = false, nullable = false)
     private LocalDateTime soldAt;
 }
