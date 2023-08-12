@@ -3,13 +3,19 @@ package trothly.trothcam.service.web;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import trothly.trothcam.domain.history.History;
+import trothly.trothcam.domain.history.HistoryRepository;
 import trothly.trothcam.domain.image.Image;
+import trothly.trothcam.domain.like.LikeProduct;
+import trothly.trothcam.domain.like.LikeProductRepository;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.product.Product;
 import trothly.trothcam.domain.product.ProductRepository;
 import trothly.trothcam.dto.app.CheckImgHashResDto;
 import trothly.trothcam.dto.auth.web.CheckIdResDto;
 import trothly.trothcam.dto.auth.web.ValidateWebTokenResDto;
+import trothly.trothcam.dto.web.ProductDetailResDto;
+import trothly.trothcam.dto.web.ProductReqDto;
 import trothly.trothcam.dto.web.ProductsResDto;
 import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.ErrorCode;
@@ -25,7 +31,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductService {
 
-//    private final ProductRepository productRepository;
+    private final ProductRepository productRepository;
+
 //
 //    /* 공개 인증서 조회 */
 //    @Transactional(readOnly = true)
@@ -36,4 +43,5 @@ public class ProductService {
 //
 //        return findProducts;
 //    }
+
 }
