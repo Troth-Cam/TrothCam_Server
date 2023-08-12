@@ -32,9 +32,6 @@ public class Image extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Share share;
 
-    @Column(name = "image_content", nullable = true)
-    private String content;
-
     @Column(name = "image_lens", nullable = true)
     private String lens;
 

@@ -45,4 +45,12 @@ public class ImageService {
         return new CheckImgHashResDto("인증된 해시값입니다.");
     }
 
+    //이미지 찾기
+    public Optional<Image> findImage(Long id) throws BaseException{
+        Optional<Image> image = imageRepository.findById(id);
+        if(image.isEmpty()) {
+            throw new BadRequestException("이미지가 존재하지 않습니다.");
+        }
+        return image;
+    }
 }
