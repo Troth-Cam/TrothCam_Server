@@ -40,7 +40,7 @@ public class Product extends BaseTimeEntity {
     @Column(name = "tags", nullable = false)
     private int tags;
 
-    @Column(name = "price", nullable = false)
+    @Column(name = "price")
     private Long price;
 
     @Column(name = "description", nullable = false)
@@ -49,9 +49,6 @@ public class Product extends BaseTimeEntity {
     @Column(name = "views", nullable = false)
     @ColumnDefault("0")
     private int views;
-
-    @Column(name = "likes", nullable = false)
-    private Long likes;
 
     @Column(name = "public_yn", nullable = false)
     @Enumerated(EnumType.STRING)
