@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import trothly.trothcam.domain.image.Share;
 import trothly.trothcam.domain.core.BaseTimeEntity;
 import trothly.trothcam.domain.image.Image;
 import trothly.trothcam.domain.member.Member;
@@ -34,6 +33,9 @@ public class Product extends BaseTimeEntity {
     @JoinColumn(name = "owner_id")
     private Member member;
 
+    @Column(name = "title")
+    private String title;
+
     @Column(name = "tags", nullable = false)
     private int tags;
 
@@ -49,7 +51,7 @@ public class Product extends BaseTimeEntity {
 
     @Column(name = "public_yn", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Public publicYn;
+    private PublicYn publicYn;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

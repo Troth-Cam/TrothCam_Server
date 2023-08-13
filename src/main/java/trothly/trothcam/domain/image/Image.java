@@ -3,6 +3,7 @@ package trothly.trothcam.domain.image;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import trothly.trothcam.domain.core.BaseTimeEntity;
@@ -33,6 +34,7 @@ public class Image extends BaseTimeEntity {
     private Member member;
 
     @Column(name = "image_share", nullable = false)
+    @ColumnDefault("N")
     @Enumerated(EnumType.STRING)
     private Share share;
 
@@ -47,9 +49,6 @@ public class Image extends BaseTimeEntity {
 
     @Column(name = "image_size", nullable = true)
     private String size;
-
-    @Column(name = "title")
-    private String title;
 
     public Image(String imageHash, Member member) {
         this.imageHash = imageHash;
