@@ -22,9 +22,9 @@ public class ProductController {
 
     private final ProductService productService;
 
-    /* 공개 인증서 조회 */
+//    /* 공개 인증서 조회 */
 //    @GetMapping("/products")
-//    public<T> BaseResponse<ProductsResDto> findPublicProducts(@RequestParam(value = "id") String id) {
+//    public BaseResponse<ProductsResDto> findPublicProducts(@RequestParam(value = "id") String id) {
 //        List<Product> findProducts = productService.findPublicProducts(id);
 //
 //        // TODO: 2023/08/11 liked 여부 확인하는 로직 필요

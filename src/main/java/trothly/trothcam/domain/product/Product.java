@@ -34,9 +34,6 @@ public class Product extends BaseTimeEntity {
     @JoinColumn(name = "owner_id")
     private Member member;
 
-    @Column(name = "title", nullable = false)
-    private String title;
-
     @Column(name = "tags", nullable = false)
     private int tags;
 

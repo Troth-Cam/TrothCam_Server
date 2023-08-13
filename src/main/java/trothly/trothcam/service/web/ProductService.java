@@ -35,16 +35,16 @@ public class ProductService {
     private final HistoryRepository historyRepository;
     private final LikeProductRepository likeProductRepository;
 
-//
-//    /* 공개 인증서 조회 */
-//    @Transactional(readOnly = true)
-//    public List<Product> findPublicProducts(String webId) throws BaseException {
-//        List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn_Y(webId);
-//        if (findProducts == null || findProducts.isEmpty())
-//            throw new ProductNotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
-//
-//        return findProducts;
-//    }
+
+    /* 공개 인증서 조회 */
+    @Transactional(readOnly = true)
+    public List<Product> findPublicProducts(String webId) throws BaseException {
+        List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn_Y(webId);
+        if (findProducts == null || findProducts.isEmpty())
+            throw new ProductNotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
+
+        return findProducts;
+    }
 
     /* 상품 detail 화면 조회 */
     @Transactional(readOnly = true)

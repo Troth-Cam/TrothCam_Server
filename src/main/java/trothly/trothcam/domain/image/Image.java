@@ -48,6 +48,9 @@ public class Image extends BaseTimeEntity {
     @Column(name = "image_size", nullable = true)
     private String size;
 
+    @Column(name = "title")
+    private String title;
+
     public Image(String imageHash, Member member) {
         this.imageHash = imageHash;
         this.member = member;
