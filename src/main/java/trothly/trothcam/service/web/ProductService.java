@@ -1,6 +1,7 @@
 package trothly.trothcam.service.web;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.history.History;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -36,7 +38,9 @@ public class ProductService {
     /* 공개 인증서 조회 */
     @Transactional(readOnly = true)
     public List<ProductsResDto> findPublicProducts(String webId) throws BaseException {
+        log.trace("인증서 가져오기 service1");
         List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn(webId, PublicYn.Y);
+        log.trace("인증서 가져오기 service2", findProducts.toString());
         if (findProducts == null || findProducts.isEmpty())
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
 
