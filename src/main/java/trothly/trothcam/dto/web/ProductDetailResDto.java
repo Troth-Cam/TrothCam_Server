@@ -5,9 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import trothly.trothcam.domain.history.History;
-import trothly.trothcam.domain.product.Public;
+import trothly.trothcam.domain.product.PublicYn;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class ProductDetailResDto {
     private String description;
     private int views;
     private Long likes;
-    private Public publicYN;
+    private PublicYn publicYN;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean liked;
