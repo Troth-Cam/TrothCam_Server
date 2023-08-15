@@ -1,31 +1,30 @@
 package trothly.trothcam.service.web;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.history.History;
 import trothly.trothcam.domain.history.HistoryRepository;
-import trothly.trothcam.domain.image.Image;
+import trothly.trothcam.domain.image.ImageRepository;
 import trothly.trothcam.domain.like.LikeProduct;
 import trothly.trothcam.domain.like.LikeProductRepository;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.product.Product;
 import trothly.trothcam.domain.product.ProductRepository;
-import trothly.trothcam.dto.app.CheckImgHashResDto;
-import trothly.trothcam.dto.auth.web.CheckIdResDto;
-import trothly.trothcam.dto.auth.web.ValidateWebTokenResDto;
+import trothly.trothcam.domain.product.PublicYn;
 import trothly.trothcam.dto.web.ProductDetailResDto;
 import trothly.trothcam.dto.web.ProductReqDto;
 import trothly.trothcam.dto.web.ProductsResDto;
 import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.ErrorCode;
 import trothly.trothcam.exception.custom.BadRequestException;
-import trothly.trothcam.exception.custom.ProductNotFoundException;
-import trothly.trothcam.exception.custom.SignupException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -34,17 +33,25 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final HistoryRepository historyRepository;
     private final LikeProductRepository likeProductRepository;
+    private final ImageRepository imageRepository;
 
-//
-//    /* 공개 인증서 조회 */
-//    @Transactional(readOnly = true)
-//    public List<Product> findPublicProducts(String webId) throws BaseException {
-//        List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn_Y(webId);
-//        if (findProducts == null || findProducts.isEmpty())
-//            throw new ProductNotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
-//
-//        return findProducts;
-//    }
+    /* 공개 인증서 조회 */
+    @Transactional(readOnly = true)
+    public List<ProductsResDto> findPublicProducts(String webId) throws BaseException {
+        log.trace("인증서 가져오기 service1");
+        List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn(webId, PublicYn.Y);
+        log.trace("인증서 가져오기 service2", findProducts.toString());
+        if (findProducts == null || findProducts.isEmpty())
+            throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
+
+        // TODO: 2023/08/11 liked 여부 확인하는 로직 필요
+        // TODO: 2023/08/11 createdAt LocalDateTime -> String 변환 로직 필요
+        List<ProductsResDto> collect = findProducts.stream()
+                .map(m -> new ProductsResDto(m.getTitle(), m.getMember().getWebId(), "20230605", m.getPrice(), true))
+                .collect(Collectors.toList());
+
+        return collect;
+    }
 
     /* 상품 detail 화면 조회 */
     @Transactional(readOnly = true)

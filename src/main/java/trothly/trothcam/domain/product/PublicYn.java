@@ -1,5 +1,5 @@
 package trothly.trothcam.domain.product;
 
-public enum Public {
+public enum PublicYn {
     Y, N
 }

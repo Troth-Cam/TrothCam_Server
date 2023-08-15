@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 public class ProductsResDto<T> {
 
     private String title;
-    private String ownerId;
-    private String createdAt;
+    private String ownerWebId;
+    private String soldAt;
     private Long price;
     private boolean isLiked;
 }
