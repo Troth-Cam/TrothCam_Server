@@ -37,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/auth/check-id/**", "/auth/signup",
                 "/auth/login", "/auth/logout",
                 "/h2-console/**", "/health-check", "/sample/**", "/api/image/**",
-                "/api/products/**", "/product-detail"); // TODO: 2023/08/13 개발 완료 후 경로 삭제
+                "/api/products/**", "/api/product-detail", "/api/product-ranking/**"); // TODO: 2023/08/13 개발 완료 후 경로 삭제
     }
 
     // 스프링시큐리티 설정
@@ -64,6 +64,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/health-check").permitAll()
                 .antMatchers("/sample/**").permitAll()
                 .antMatchers("/api/image/**").permitAll()
+                .antMatchers("/api/product-detail").permitAll()
+                .antMatchers("/api/product-ranking/**").permitAll()
 
 
                 //.antMatchers("/**").permitAll()     // 로그인 개발 끝나면 삭제

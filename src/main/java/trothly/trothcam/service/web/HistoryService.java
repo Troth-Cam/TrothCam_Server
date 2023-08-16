@@ -25,7 +25,7 @@ public class HistoryService {
 
     // 거래 내역 전체 조회
     public List<HistoryDto> findAllHistory(ProductReqDto req) {
-        List<History> findHistories = historyRepository.findAllByProductId(req.getProductId());
+        List<History> findHistories = historyRepository.findAllByProductIdOrderBySoldAtDesc(req.getProductId());
 //        if(findHistories == null || findHistories.isEmpty()) {
 //            throw new BaseException(HISTORIES_NOT_FOUND);
 //        }
