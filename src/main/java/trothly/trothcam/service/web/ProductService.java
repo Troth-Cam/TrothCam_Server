@@ -13,6 +13,7 @@ import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.product.Product;
 import trothly.trothcam.domain.product.ProductRepository;
 import trothly.trothcam.domain.product.PublicYn;
+import trothly.trothcam.dto.web.HistoryDto;
 import trothly.trothcam.dto.web.ProductDetailResDto;
 import trothly.trothcam.dto.web.ProductReqDto;
 import trothly.trothcam.dto.web.ProductsResDto;
@@ -20,6 +21,7 @@ import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.ErrorCode;
 import trothly.trothcam.exception.custom.BadRequestException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,6 +36,7 @@ public class ProductService {
     private final HistoryRepository historyRepository;
     private final LikeProductRepository likeProductRepository;
     private final ImageRepository imageRepository;
+    private final HistoryService historyService;
 
     /* 공개 인증서 조회 */
     @Transactional(readOnly = true)
@@ -54,7 +57,7 @@ public class ProductService {
     }
 
     /* 상품 detail 화면 조회 */
-    @Transactional(readOnly = true)
+    @Transactional
     public ProductDetailResDto findProductDetail(ProductReqDto req, Member member) {
         Boolean liked = false;
 
@@ -76,10 +79,10 @@ public class ProductService {
             liked = false;
         }
 
-        List<History> histories = historyRepository.findAllByProductId(req.getProductId());
+        List<HistoryDto> historyDto = historyService.findAllHistory(req);
 
         return new ProductDetailResDto(req.getProductId(), product.getImage().getId(), product.getMember().getId(), product.getTitle(),
                 product.getTags(), product.getPrice(), product.getDescription(),product.getViews(), likes, product.getPublicYn(), product.getCreatedAt(),
-                product.getLastModifiedAt(), liked, histories);
+                product.getLastModifiedAt(), liked, historyDto);
     }
 }

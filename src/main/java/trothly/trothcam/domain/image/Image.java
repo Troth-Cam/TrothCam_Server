@@ -34,7 +34,6 @@ public class Image extends BaseTimeEntity {
     private Member member;
 
     @Column(name = "image_share", nullable = false)
-    @ColumnDefault("N")
     @Enumerated(EnumType.STRING)
     private Share share;
 
@@ -50,8 +49,9 @@ public class Image extends BaseTimeEntity {
     @Column(name = "image_size", nullable = true)
     private String size;
 
-    public Image(String imageHash, Member member) {
+    public Image(String imageHash, Member member, Share share) {
         this.imageHash = imageHash;
         this.member = member;
+        this.share = share;
     }
 }
