@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.image.Image;
 import trothly.trothcam.domain.image.ImageRepository;
+import trothly.trothcam.domain.image.Share;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.dto.app.CheckImgHashResDto;
 import trothly.trothcam.dto.app.ImgHashReqDto;
@@ -31,7 +32,7 @@ public class ImageService {
             throw new BadRequestException("이미 존재하는 해시 값입니다.");
         }
 
-        Image image = imageRepository.save(new Image(req.getImageHash(), member));
+        Image image = imageRepository.save(new Image(req.getImageHash(), member, Share.N));
 
         return new SaveImgHashResDto(image.getId());
     }
