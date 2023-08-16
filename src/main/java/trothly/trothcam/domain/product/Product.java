@@ -9,6 +9,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import trothly.trothcam.domain.core.BaseTimeEntity;
 import trothly.trothcam.domain.image.Image;
 import trothly.trothcam.domain.member.Member;
+import trothly.trothcam.dto.web.certificate.PublicResDto;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -59,5 +60,10 @@ public class Product extends BaseTimeEntity {
 
     public void updatePublicYn(PublicYn publicYn) {
         this.publicYn = publicYn;
+    }
+
+    public void updateInfo(PublicResDto publicResDto) {
+        this.price = publicResDto.getPrice();
+        this.description = publicResDto.getDescription();
     }
 }

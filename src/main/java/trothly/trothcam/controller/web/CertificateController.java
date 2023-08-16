@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.dto.web.ProductDetailResDto;
 import trothly.trothcam.dto.web.certificate.ProductDto;
+import trothly.trothcam.dto.web.certificate.PublicResDto;
 import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.service.web.CertificateService;
 
@@ -24,14 +25,20 @@ public class CertificateController {
         List<ProductDto> getPrivateCertificates = certificateService.getPrivateCertificates(member, productId);
         return BaseResponse.onSuccess(getPrivateCertificates);
     }
+
     // 비공개 인증서 공개 인증서로 변환 (온라인에 게시하기[판매하기] 버튼 클릭 시)
+    @PatchMapping("/{productId}/convert-to-public")
+    public BaseResponse<String> updatePublicCertificates(@AuthenticationPrincipal Member member, @PathVariable Long productId, @RequestBody PublicResDto publicResDto) {
+        String result = certificateService.updatePublicCertificates(member, productId, publicResDto);
+        return BaseResponse.onSuccess(result);
+    }
 
     // 비공개 인증서 product detail 조회
 
     // 공개 인증서 product detail 조회
-    @GetMapping("/public/{productId}")
-    public BaseResponse<ProductDetailResDto> getPublicProductDetail(@PathVariable Long productId) {
-        ProductDetailResDto getPublicProductDetail = certificateService.getPublicProductDetail(productId);
-        return BaseResponse.onSuccess(getPublicProductDetail);
-    }
+//    @GetMapping("/public/{productId}")
+//    public BaseResponse<ProductDetailResDto> getPublicProductDetail(@PathVariable Long productId) {
+//        ProductDetailResDto getPublicProductDetail = certificateService.getPublicProductDetail(productId);
+//        return BaseResponse.onSuccess(getPublicProductDetail);
+//    }
 }

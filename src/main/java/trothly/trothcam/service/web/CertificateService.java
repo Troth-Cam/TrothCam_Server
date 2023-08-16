@@ -12,6 +12,7 @@ import trothly.trothcam.domain.product.PublicYn;
 import trothly.trothcam.dto.web.ProductDetailResDto;
 import trothly.trothcam.dto.web.ProductsResDto;
 import trothly.trothcam.dto.web.certificate.ProductDto;
+import trothly.trothcam.dto.web.certificate.PublicResDto;
 import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.ErrorCode;
 
@@ -34,7 +35,7 @@ public class CertificateService {
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
 
         Product product = getProduct.get();
-        product.updatePublicYn(PublicYn.N);   // 1. 해당 상품 비공개로 전환
+        product.updatePublicYn(PublicYn.N);   // 1. 해당 인증서 비공개로 전환
         productRepository.save(product);
 
         List<Product> productList = productRepository.findAllByMemberAndIdAndPublicYn(member, productId, PublicYn.N);   // 2. 비공개 리스트 조회
@@ -55,6 +56,18 @@ public class CertificateService {
     }
 
     // 비공개 인증서 공개 인증서로 변환 (온라인에 게시하기[판매하기] 버튼 클릭 시)
+    public String updatePublicCertificates(Member member, Long productId, PublicResDto publicResDto) {
+        Optional<Product> getProduct = productRepository.findById(productId);
+        if(getProduct.isEmpty())
+            throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
+
+        Product product = getProduct.get();
+        product.updatePublicYn(PublicYn.Y);   // 1. 해당 인증서 공개로 변환
+        product.updateInfo(publicResDto);     // 2. 가격, 설명 업데이트
+        productRepository.save(product);
+
+        return "공개 인증서로 변환 성공";
+    }
 
     // 비공개 인증서 product detail 조회
 
