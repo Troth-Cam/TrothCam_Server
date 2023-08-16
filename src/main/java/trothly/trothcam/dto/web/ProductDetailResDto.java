@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import trothly.trothcam.domain.history.History;
 import trothly.trothcam.domain.product.PublicYn;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,6 +29,6 @@ public class ProductDetailResDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean liked;
-    private List<History> histories;
+    private List<HistoryDto> histories;
 
 }
