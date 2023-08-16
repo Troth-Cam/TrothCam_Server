@@ -53,10 +53,11 @@ public class Product extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private PublicYn publicYn;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
     public void updateViews(int views) {
         this.views = views;
+    }
+
+    public void updatePublicYn(PublicYn publicYn) {
+        this.publicYn = publicYn;
     }
 }
