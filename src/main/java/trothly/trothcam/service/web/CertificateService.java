@@ -1,6 +1,7 @@
 package trothly.trothcam.service.web;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import trothly.trothcam.domain.image.Image;
 import trothly.trothcam.domain.like.LikeProduct;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CertificateService {
@@ -30,6 +32,7 @@ public class CertificateService {
 
     // 공개 인증서 비공개 인증서로 변환 (비공개하기[판매취소] 클릭 시)
     public List<ProductDto> getPrivateCertificates(Member member, Long productId) {
+        log.info("로그인 한 memberId : " + member.getId());
         Optional<Product> getProduct = productRepository.findById(productId);
         if(getProduct.isEmpty())
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
@@ -38,15 +41,17 @@ public class CertificateService {
         product.updatePublicYn(PublicYn.N);   // 1. 해당 인증서 비공개로 전환
         productRepository.save(product);
 
-        List<Product> productList = productRepository.findAllByMemberAndIdAndPublicYn(member, productId, PublicYn.N);   // 2. 비공개 리스트 조회
+        List<Product> productList = productRepository.findAllByMemberAndPublicYn(member, PublicYn.N);   // 2. 비공개 리스트 조회
         List<ProductDto> productDtoList = productList.stream()
                 .map(p -> {
                     Member getMember = p.getMember();
                     String webToken = getMember.getWebToken();  // 1. webToken 가져오기
 
+                    log.info("webToken : " + webToken);
                     // 2. 좋아요 눌렀는지 체크
                     Optional<LikeProduct> getLikeProduct = likeProductRepository.findByProductAndMember(p, p.getMember());
                     boolean isLiked = getLikeProduct.isPresent();
+                    log.info("isLiked : " + isLiked);
 
                     return new ProductDto(p, webToken, isLiked);
                 })

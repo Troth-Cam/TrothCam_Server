@@ -30,7 +30,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 
     // 비공개 인증서 리스트 조회
-    List<Product> findAllByMemberAndIdAndPublicYn(Member member, Long productId, PublicYn publicYn);
+    List<Product> findAllByMemberAndPublicYn(Member member, PublicYn publicYn);
 
     interface ProductTop {
         Long getHistoryId();
