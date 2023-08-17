@@ -5,7 +5,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.dto.web.ProductDetailResDto;
+import trothly.trothcam.dto.web.certificate.PrivateDetailDto;
 import trothly.trothcam.dto.web.certificate.ProductDto;
+import trothly.trothcam.dto.web.certificate.PublicDetailDto;
 import trothly.trothcam.dto.web.certificate.PublicResDto;
 import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.service.web.CertificateService;
@@ -34,11 +36,16 @@ public class CertificateController {
     }
 
     // 비공개 인증서 product detail 조회
+    @GetMapping("/private/{productId}")
+    public BaseResponse<PrivateDetailDto> getPrivateProductDetail(@AuthenticationPrincipal Member member, @PathVariable Long productId) {
+        PrivateDetailDto getPrivateDetailDto = certificateService.getPrivateProductDetail(member, productId);
+        return BaseResponse.onSuccess(getPrivateDetailDto);
+    }
 
     // 공개 인증서 product detail 조회
-//    @GetMapping("/public/{productId}")
-//    public BaseResponse<ProductDetailResDto> getPublicProductDetail(@PathVariable Long productId) {
-//        ProductDetailResDto getPublicProductDetail = certificateService.getPublicProductDetail(productId);
-//        return BaseResponse.onSuccess(getPublicProductDetail);
-//    }
+    @GetMapping("/public/{productId}")
+    public BaseResponse<PublicDetailDto> getPublicProductDetail(@AuthenticationPrincipal Member member, @PathVariable Long productId) {
+        PublicDetailDto getPublicProductDetail = certificateService.getPublicProductDetail(member, productId);
+        return BaseResponse.onSuccess(getPublicProductDetail);
+    }
 }
