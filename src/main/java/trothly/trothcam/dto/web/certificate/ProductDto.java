@@ -1,10 +1,13 @@
 package trothly.trothcam.dto.web.certificate;
 
-import lombok.Builder;
+import lombok.*;
 import trothly.trothcam.domain.product.Product;
 
 import java.time.LocalDateTime;
 
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class ProductDto {
     private Long productId;
     private String title;
