@@ -20,7 +20,10 @@ import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.ErrorCode;
 import trothly.trothcam.exception.custom.BadRequestException;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,19 +44,52 @@ public class ProductService {
     /* 공개 인증서 조회 */
     @Transactional(readOnly = true)
     public List<ProductsResDto> findPublicProducts(String webId) throws BaseException {
-        log.trace("인증서 가져오기 service1");
         List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn(webId, PublicYn.Y);
-        log.trace("인증서 가져오기 service2", findProducts.toString());
+
         if (findProducts == null || findProducts.isEmpty())
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
 
-        // TODO: 2023/08/11 liked 여부 확인하는 로직 필요
-        // TODO: 2023/08/11 createdAt LocalDateTime -> String 변환 로직 필요
-        List<ProductsResDto> collect = findProducts.stream()
-                .map(m -> new ProductsResDto(m.getTitle(), m.getMember().getWebId(), "20230605", m.getPrice(), true))
-                .collect(Collectors.toList());
+        List<ProductsResDto> result = new ArrayList<>();
+        for (int i = 0; i < findProducts.size(); i++) {
+            Product p = findProducts.get(i);
+            LocalDateTime soldAt = historyRepository.findTopByProduct_IdOrderBySoldAt(p.getId())
+                    .orElse(p.getLastModifiedAt());
+            boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
 
-        return collect;
+            ProductsResDto dto = new ProductsResDto(p.getTitle(), p.getMember().getWebId(),
+                    soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), p.getPrice(), isLiked);
+
+            result.add(dto);
+        }
+
+        return result;
+    }
+
+    /* 비공개 인증서 조회 */
+    @Transactional(readOnly = true)
+    public List<ProductsResDto> findPrivateProducts(String webId) throws BaseException {
+        List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn(webId, PublicYn.N);
+
+        if (findProducts == null || findProducts.isEmpty())
+            throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
+
+        List<ProductsResDto> result = new ArrayList<>();
+        for (int i = 0; i < findProducts.size(); i++) {
+            Product p = findProducts.get(i);
+            LocalDateTime soldAt = p.getLastModifiedAt();
+            boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
+            Long price = p.getPrice();
+            if (price == null) {
+                price = 0L;
+            }
+
+            ProductsResDto dto = new ProductsResDto(p.getTitle(), p.getMember().getWebId(),
+                    soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), price, isLiked);
+
+            result.add(dto);
+        }
+
+        return result;
     }
 
     /* 상품 detail 화면 조회 - 로그인 0 */

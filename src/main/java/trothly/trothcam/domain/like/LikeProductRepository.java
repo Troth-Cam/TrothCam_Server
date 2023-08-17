@@ -15,4 +15,6 @@ public interface LikeProductRepository extends JpaRepository<LikeProduct, Long> 
     Long countByProductId(Long productId);
 
     Optional<LikeProduct> findByProductAndMember(Product product, Member member);
+
+    boolean existsByProduct_IdAndMember_Id(Long productId, Long memberId);
 }

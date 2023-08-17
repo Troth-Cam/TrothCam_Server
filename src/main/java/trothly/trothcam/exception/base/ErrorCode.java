@@ -31,16 +31,13 @@ public enum ErrorCode { // BaseResponseStatus와 같은 역할
     ALREADY_LIKED(2013, "이미 좋아요를 누른 상품입니다.",BAD_REQUEST),
     NOT_LIKED(2014, "좋아요를 누르지 않은 상품입니다.", BAD_REQUEST),
     HISTORIES_NOT_FOUND(2015, "거래 내역이 존재하지 않습니다.", BAD_REQUEST),
-
+    PRODUCT_NOT_FOUND(2016, "인증서가 존재하지 않습니다.", BAD_REQUEST),
 
     /**
      * 3000 : Response 오류
      */
     // Common
     RESPONSE_ERROR(3000, "값을 불러오는데 실패하였습니다.", FORBIDDEN),
-    _NO_CONTENT(3001, "데이터가 존재하지 않습니다.", NO_CONTENT),
-
-    PRODUCT_NOT_FOUND(3002, "인증서가 존재하지 않습니다.", NO_CONTENT),
 
 
     /**
