@@ -49,16 +49,15 @@ public class ProductService {
         if (findProducts == null || findProducts.isEmpty())
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
 
-        // TODO: 2023/08/11 liked 여부 확인하는 로직 필요
-
         List<ProductsResDto> result = new ArrayList<>();
         for (int i = 0; i < findProducts.size(); i++) {
             Product p = findProducts.get(i);
             LocalDateTime soldAt = historyRepository.findTopByProduct_IdOrderBySoldAt(p.getId())
                     .orElse(p.getLastModifiedAt());
+            boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
 
             ProductsResDto dto = new ProductsResDto(p.getTitle(), p.getMember().getWebId(),
-                        soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), p.getPrice(), true);
+                        soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), p.getPrice(), isLiked);
 
             result.add(dto);
         }
