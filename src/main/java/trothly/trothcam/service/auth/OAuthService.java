@@ -73,7 +73,7 @@ public class OAuthService {
 
 
     /* 웹 로그인 */
-    @Transactional(readOnly = true)
+    @Transactional
     public LoginWebResDto webLogin(LoginWebReqDto req) throws BaseException {
         Member member = memberRepository.findByWebId(req.getId()) // 아이디 일치 여부 판단
                 .orElseThrow(() -> new LoginException("잘못된 아이디 혹은 비밀번호입니다."));
@@ -85,7 +85,9 @@ public class OAuthService {
 
         String newAccessToken = jwtService.encodeJwtToken(new TokenDto(member.getId()));
         String newRefreshToken = jwtService.encodeJwtRefreshToken(member.getId());
+
         member.updateRefreshToken(newRefreshToken); // JPA 변경 감지로 DB 업데이트
+        member.updateStatus("active");                  // inactive -> active로 변환
         memberRepository.save(member);
 
         return new LoginWebResDto(newAccessToken, newRefreshToken);
