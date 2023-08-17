@@ -86,6 +86,7 @@ public class OAuthService {
         String newAccessToken = jwtService.encodeJwtToken(new TokenDto(member.getId()));
         String newRefreshToken = jwtService.encodeJwtRefreshToken(member.getId());
         member.updateRefreshToken(newRefreshToken); // JPA 변경 감지로 DB 업데이트
+        memberRepository.save(member);
 
         return new LoginWebResDto(newAccessToken, newRefreshToken);
     }
