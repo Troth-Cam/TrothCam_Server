@@ -3,6 +3,8 @@ package trothly.trothcam.service.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import trothly.trothcam.domain.history.History;
+import trothly.trothcam.domain.history.HistoryRepository;
 import trothly.trothcam.domain.image.Image;
 import trothly.trothcam.domain.like.LikeProduct;
 import trothly.trothcam.domain.like.LikeProductRepository;
@@ -12,7 +14,9 @@ import trothly.trothcam.domain.product.ProductRepository;
 import trothly.trothcam.domain.product.PublicYn;
 import trothly.trothcam.dto.web.ProductDetailResDto;
 import trothly.trothcam.dto.web.ProductsResDto;
+import trothly.trothcam.dto.web.certificate.PrivateDetailDto;
 import trothly.trothcam.dto.web.certificate.ProductDto;
+import trothly.trothcam.dto.web.certificate.PublicDetailDto;
 import trothly.trothcam.dto.web.certificate.PublicResDto;
 import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.ErrorCode;
@@ -29,10 +33,10 @@ import java.util.stream.Collectors;
 public class CertificateService {
     private final ProductRepository productRepository;
     private final LikeProductRepository likeProductRepository;
+    private final HistoryRepository historyRepository;
 
     // 공개 인증서 비공개 인증서로 변환 (비공개하기[판매취소] 클릭 시)
     public List<ProductDto> getPrivateCertificates(Member member, Long productId) {
-        log.info("로그인 한 memberId : " + member.getId());
         Optional<Product> getProduct = productRepository.findById(productId);
         if(getProduct.isEmpty())
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
@@ -47,11 +51,9 @@ public class CertificateService {
                     Member getMember = p.getMember();
                     String webToken = getMember.getWebToken();  // 1. webToken 가져오기
 
-                    log.info("webToken : " + webToken);
                     // 2. 좋아요 눌렀는지 체크
                     Optional<LikeProduct> getLikeProduct = likeProductRepository.findByProductAndMember(p, p.getMember());
                     boolean isLiked = getLikeProduct.isPresent();
-                    log.info("isLiked : " + isLiked);
 
                     return new ProductDto(p, webToken, isLiked);
                 })
@@ -75,6 +77,103 @@ public class CertificateService {
     }
 
     // 비공개 인증서 product detail 조회
+    public PrivateDetailDto getPrivateProductDetail(Member member, Long productId) {
+        Optional<Product> getProduct = productRepository.findById(productId);
+        if(getProduct.isEmpty())
+            throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
+
+        Product product = getProduct.get();
+
+        Long getLikeCount = likeProductRepository.countByProductId(product.getId());
+        Optional<LikeProduct> getLikeProduct = likeProductRepository.findByProductAndMember(product, member);
+        boolean isLiked = getLikeProduct.isPresent();
+
+        PrivateDetailDto.ProductInfo productInfo = PrivateDetailDto.ProductInfo.builder()
+                .productId(product.getId())
+                .title(product.getTitle())
+                .tags(product.getTags())
+                .views(product.getViews())
+                .likeCount(getLikeCount)
+                .isLiked(isLiked)
+                .build();
+
+        Image image = product.getImage();
+        PrivateDetailDto.ImageInfo imageInfo = PrivateDetailDto.ImageInfo.builder()
+                .imageId(image.getId())
+                .url(image.getImageUrl())
+                .ownerWebToken(product.getMember().getWebToken())
+                .authorshipWebToken(image.getMember().getWebToken())
+                .description(product.getDescription())
+                .lens(image.getLens())
+                .location(image.getLocation())
+                .resolution(image.getResolution())
+                .size(image.getSize())
+                .build();
+
+        List<History> getHistoryList = historyRepository.findAllByProductIdOrderBySoldAtDesc(productId);
+        List<PrivateDetailDto.HistoryInfo> historyInfoList = getHistoryList.stream()
+                .map(h -> {
+                    PrivateDetailDto.HistoryInfo historyInfo = PrivateDetailDto.HistoryInfo.builder()
+                            .historyId(h.getId())
+                            .sellerWebToken(h.getSeller().getWebToken())
+                            .buyerWebToken(h.getBuyer().getWebToken())
+                            .price(h.getPrice())
+                            .soldAt(h.getSoldAt())
+                            .build();
+
+                    return historyInfo;
+                })
+                .collect(Collectors.toList());
+
+        return new PrivateDetailDto(productInfo, imageInfo, historyInfoList);
+    }
 
     // 공개 인증서 product detail 조회
+    public PublicDetailDto getPublicProductDetail(Member member, Long productId) {
+        Optional<Product> getProduct = productRepository.findById(productId);
+        if(getProduct.isEmpty())
+            throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
+
+        Product product = getProduct.get();
+
+        Long getLikeCount = likeProductRepository.countByProductId(product.getId());
+
+        PublicDetailDto.ProductInfo productInfo = PublicDetailDto.ProductInfo.builder()
+                .productId(product.getId())
+                .title(product.getTitle())
+                .tags(product.getTags())
+                .views(product.getViews())
+                .likeCount(getLikeCount)
+                .build();
+
+        Image image = product.getImage();
+        PublicDetailDto.ImageInfo imageInfo = PublicDetailDto.ImageInfo.builder()
+                .imageId(image.getId())
+                .url(image.getImageUrl())
+                .ownerWebToken(product.getMember().getWebToken())
+                .authorshipWebToken(image.getMember().getWebToken())
+                .description(product.getDescription())
+                .lens(image.getLens())
+                .location(image.getLocation())
+                .resolution(image.getResolution())
+                .size(image.getSize())
+                .build();
+
+        List<History> getHistoryList = historyRepository.findAllByProductIdOrderBySoldAtDesc(productId);
+        List<PublicDetailDto.HistoryInfo> historyInfoList = getHistoryList.stream()
+                .map(h -> {
+                    PublicDetailDto.HistoryInfo historyInfo = PublicDetailDto.HistoryInfo.builder()
+                            .historyId(h.getId())
+                            .sellerWebToken(h.getSeller().getWebToken())
+                            .buyerWebToken(h.getBuyer().getWebToken())
+                            .price(h.getPrice())
+                            .soldAt(h.getSoldAt())
+                            .build();
+
+                    return historyInfo;
+                })
+                .collect(Collectors.toList());
+
+        return new PublicDetailDto(productInfo, imageInfo, historyInfoList);
+    }
 }
