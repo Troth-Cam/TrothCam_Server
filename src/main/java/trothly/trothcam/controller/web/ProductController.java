@@ -64,7 +64,7 @@ public class ProductController {
         return BaseResponse.onSuccess(res);
     }
 
-    /* 메인 화면 랭킹 top - 로그인 x */
+    /* 메인 화면 랭킹뷰 */
     @GetMapping("/product-ranking/{type}")
     public BaseResponse<List<ProductRankResDto>> findRanking(@PathVariable String type) {
         List<ProductRankResDto> result = new ArrayList<>();
@@ -72,7 +72,7 @@ public class ProductController {
         if(type.equals("top")) {
             result = productService.findProductRankTop();
         } else if(type.equals("latest")) {
-
+            result = productService.findProductRankLatest();
         } else {
             throw new BaseException(REQUEST_ERROR);
         }
@@ -80,4 +80,19 @@ public class ProductController {
         return BaseResponse.onSuccess(result);
     }
 
+    /* view all */
+    @GetMapping("/view-all/{type}")
+    public BaseResponse<List<ProductRankResDto>> findViewAll(@PathVariable String type) {
+        List<ProductRankResDto> result = new ArrayList<>();
+
+        if(type.equals("top")) {
+            result = productService.findRankViewAllTop();
+        } else if(type.equals("latest")) {
+            result = productService.findRankViewAllLatest();
+        } else {
+            throw new BaseException(REQUEST_ERROR);
+        }
+
+        return BaseResponse.onSuccess(result);
+    }
 }

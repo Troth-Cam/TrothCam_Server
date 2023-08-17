@@ -116,24 +116,95 @@ public class ProductService {
                 product.getLastModifiedAt(), liked, historyDto);
     }
 
-    /* 메인 랭킹 top 조회 - 로그인 x */
+    /* 메인 랭킹 top 조회 */
     @Transactional
     public List<ProductRankResDto> findProductRankTop() {
-        List<ProductRankDto> productRankDtos = productRepository.findProductRandDto();
+        List<ProductRepository.ProductTop> productRankDtos = productRepository.findProductRandDto();
 
         List<ProductRankResDto> rankResDtos = new ArrayList<>();
 
-        for (ProductRankDto productRank : productRankDtos) {
+        for (ProductRepository.ProductTop productRank : productRankDtos) {
             Optional<Member> owner = memberRepository.findById(productRank.getBuyerId());
             Optional<Image> image = imageRepository.findById(productRank.getImageId());
 
-            ProductRankResDto productRankResDto = new ProductRankResDto(productRank.getHistoryId(), productRank.getProductId(), owner.get().getWebToken(), owner.get().getName(),
-                    image.get().getMember().getWebToken(), productRank.getTitle(), productRank.getTags(), image.get().getImageUrl(),
-                    productRank.getPrice(), productRank.getSoldAt());
+            if(owner.isPresent() && image.isPresent()) {
+                ProductRankResDto productRankResDto = new ProductRankResDto(productRank.getHistoryId(), productRank.getProductId(), owner.get().getWebToken(), owner.get().getName(),
+                        image.get().getMember().getWebToken(), productRank.getTitle(), productRank.getTags(), image.get().getImageUrl(),
+                        productRank.getPrice(), productRank.getSoldAt());
 
-            rankResDtos.add(productRankResDto);
+                rankResDtos.add(productRankResDto);
+            }
         }
 
         return rankResDtos;
+    }
+
+    /* 메인 랭킹 latest 조회 */
+    @Transactional
+    public List<ProductRankResDto> findProductRankLatest() {
+        List<ProductRepository.ProductTop> productLatestDtos = productRepository.findProductLatestDto();
+
+        List<ProductRankResDto> latestResDtos = new ArrayList<>();
+
+        for (ProductRepository.ProductTop productLatest : productLatestDtos) {
+            Optional<Member> owner = memberRepository.findById(productLatest.getBuyerId());
+            Optional<Image> image = imageRepository.findById(productLatest.getImageId());
+
+            if(owner.isPresent() && image.isPresent()) {
+                ProductRankResDto productRankResDto = new ProductRankResDto(productLatest.getHistoryId(), productLatest.getProductId(), owner.get().getWebToken(), owner.get().getName(),
+                        image.get().getMember().getWebToken(), productLatest.getTitle(), productLatest.getTags(), image.get().getImageUrl(),
+                        productLatest.getPrice(), productLatest.getSoldAt());
+
+                latestResDtos.add(productRankResDto);
+            }
+        }
+
+        return latestResDtos;
+    }
+
+    /* view all top 조회 */
+    @Transactional
+    public List<ProductRankResDto> findRankViewAllTop() {
+        List<ProductRepository.ProductTop> rankViewALlTopDtos = productRepository.findRankViewAllDto();
+
+        List<ProductRankResDto> rankAllTopDtos = new ArrayList<>();
+
+        for (ProductRepository.ProductTop rankViewAllTop : rankViewALlTopDtos) {
+            Optional<Member> owner = memberRepository.findById(rankViewAllTop.getBuyerId());
+            Optional<Image> image = imageRepository.findById(rankViewAllTop.getImageId());
+
+            if(owner.isPresent() && image.isPresent()) {
+                ProductRankResDto productRankResDto = new ProductRankResDto(rankViewAllTop.getHistoryId(), rankViewAllTop.getProductId(), owner.get().getWebToken(), owner.get().getName(),
+                        image.get().getMember().getWebToken(), rankViewAllTop.getTitle(), rankViewAllTop.getTags(), image.get().getImageUrl(),
+                        rankViewAllTop.getPrice(), rankViewAllTop.getSoldAt());
+
+                rankAllTopDtos.add(productRankResDto);
+            }
+        }
+
+        return rankAllTopDtos;
+    }
+
+    /* view all latest 조회 */
+    @Transactional
+    public List<ProductRankResDto> findRankViewAllLatest() {
+        List<ProductRepository.ProductTop> rankViewALlLatestDtos = productRepository.findRankLatestViewAllDto();
+
+        List<ProductRankResDto> rankAllLatestDtos = new ArrayList<>();
+
+        for (ProductRepository.ProductTop rankViewAllLatest : rankViewALlLatestDtos) {
+            Optional<Member> owner = memberRepository.findById(rankViewAllLatest.getBuyerId());
+            Optional<Image> image = imageRepository.findById(rankViewAllLatest.getImageId());
+
+            if(owner.isPresent() && image.isPresent()) {
+                ProductRankResDto productRankResDto = new ProductRankResDto(rankViewAllLatest.getHistoryId(), rankViewAllLatest.getProductId(), owner.get().getWebToken(), owner.get().getName(),
+                        image.get().getMember().getWebToken(), rankViewAllLatest.getTitle(), rankViewAllLatest.getTags(), image.get().getImageUrl(),
+                        rankViewAllLatest.getPrice(), rankViewAllLatest.getSoldAt());
+
+                rankAllLatestDtos.add(productRankResDto);
+            }
+        }
+
+        return rankAllLatestDtos;
     }
 }
