@@ -57,7 +57,34 @@ public class ProductService {
             boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
 
             ProductsResDto dto = new ProductsResDto(p.getTitle(), p.getMember().getWebId(),
-                        soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), p.getPrice(), isLiked);
+                    soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), p.getPrice(), isLiked);
+
+            result.add(dto);
+        }
+
+        return result;
+    }
+
+    /* 비공개 인증서 조회 */
+    @Transactional(readOnly = true)
+    public List<ProductsResDto> findPrivateProducts(String webId) throws BaseException {
+        List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn(webId, PublicYn.N);
+
+        if (findProducts == null || findProducts.isEmpty())
+            throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
+
+        List<ProductsResDto> result = new ArrayList<>();
+        for (int i = 0; i < findProducts.size(); i++) {
+            Product p = findProducts.get(i);
+            LocalDateTime soldAt = p.getLastModifiedAt();
+            boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
+            Long price = p.getPrice();
+            if (price == null) {
+                price = 0L;
+            }
+
+            ProductsResDto dto = new ProductsResDto(p.getTitle(), p.getMember().getWebId(),
+                    soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), price, isLiked);
 
             result.add(dto);
         }
