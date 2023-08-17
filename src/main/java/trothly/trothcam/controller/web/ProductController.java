@@ -30,7 +30,6 @@ public class ProductController {
 
     private final ProductService productService;
 
-    // TODO: 2023/08/13 응답 값이 비어있음. 엥? 로그도 안찍힘.. JPA 문제? query 직접 짜보기.
     /* 공개 인증서 조회 */
     @GetMapping("/products")
     public BaseResponse<List<ProductsResDto>> findPublicProducts(@RequestParam(value = "web-id") String webId) {

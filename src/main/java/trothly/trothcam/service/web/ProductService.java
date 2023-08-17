@@ -20,7 +20,10 @@ import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.ErrorCode;
 import trothly.trothcam.exception.custom.BadRequestException;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,19 +44,26 @@ public class ProductService {
     /* 공개 인증서 조회 */
     @Transactional(readOnly = true)
     public List<ProductsResDto> findPublicProducts(String webId) throws BaseException {
-        log.trace("인증서 가져오기 service1");
         List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn(webId, PublicYn.Y);
-        log.trace("인증서 가져오기 service2", findProducts.toString());
+
         if (findProducts == null || findProducts.isEmpty())
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
 
         // TODO: 2023/08/11 liked 여부 확인하는 로직 필요
-        // TODO: 2023/08/11 createdAt LocalDateTime -> String 변환 로직 필요
-        List<ProductsResDto> collect = findProducts.stream()
-                .map(m -> new ProductsResDto(m.getTitle(), m.getMember().getWebId(), "20230605", m.getPrice(), true))
-                .collect(Collectors.toList());
 
-        return collect;
+        List<ProductsResDto> result = new ArrayList<>();
+        for (int i = 0; i < findProducts.size(); i++) {
+            Product p = findProducts.get(i);
+            LocalDateTime soldAt = historyRepository.findTopByProduct_IdOrderBySoldAt(p.getId())
+                    .orElse(p.getLastModifiedAt());
+
+            ProductsResDto dto = new ProductsResDto(p.getTitle(), p.getMember().getWebId(),
+                        soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), p.getPrice(), true);
+
+            result.add(dto);
+        }
+
+        return result;
     }
 
     /* 상품 detail 화면 조회 - 로그인 0 */
