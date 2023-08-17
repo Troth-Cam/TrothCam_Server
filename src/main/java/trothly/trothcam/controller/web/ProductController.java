@@ -30,12 +30,18 @@ public class ProductController {
 
     private final ProductService productService;
 
-    // TODO: 2023/08/13 응답 값이 비어있음. 엥? 로그도 안찍힘.. JPA 문제? query 직접 짜보기.
-    /* 공개 인증서 조회 */
+    /* 인증서 조회 */
     @GetMapping("/products")
-    public BaseResponse<List<ProductsResDto>> findPublicProducts(@RequestParam(value = "web-id") String webId) {
-        List<ProductsResDto> result = productService.findPublicProducts(webId);
-        log.trace("인증서 가져오기 controller");
+    public BaseResponse<List<ProductsResDto>> findPublicProducts(
+            @RequestParam(value = "web-id") String webId, @RequestParam(value = "public") String isPublic) {
+        List<ProductsResDto> result;
+        if (isPublic.equals("Y")) {
+            result = productService.findPublicProducts(webId);
+        } else if (isPublic.equals("N")) {
+            result = productService.findPrivateProducts(webId);
+        } else throw new BaseException(ErrorCode._BAD_REQUEST);
+
+        // TODO: 2023/08/17 오류메세지 json 출력 안됨
         if (result.isEmpty()) {
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
         }
