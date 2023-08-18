@@ -18,8 +18,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByMember_IdAndPublicYn(Long id, PublicYn publicYn); // 인증서 조회
 
     @Query(value = "select ap.history_id as historyId, ap.product_id as productId, ap.seller_id as sellerId, ap.buyer_id as buyerId, ap.price as price, ap.sold_at as soldAt, p.image_id as imageId, p.title as title, p.tags as tags\n" +
-            "from (select *, rank() over (partition by h.product_id order by price desc, sold_at asc) as rank from history h) as ap join product p on ap.product_id = p.product_id\n" +
-            "where ap.rank <= 1\n" +
+            "from (select *, rank() over (partition by h.product_id order by price desc, sold_at asc) as rk from history h) as ap join product p on ap.product_id = p.product_id\n" +
+            "where ap.rk <= 1\n" +
             "order by price desc, sold_at asc\n" +
             "LIMIT 10", nativeQuery = true)
     List<ProductTop> findProductRandDto();
@@ -29,8 +29,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<ProductTop> findProductLatestDto();
 
     @Query(value = "select ap.history_id as historyId, ap.product_id as productId, ap.seller_id as sellerId, ap.buyer_id as buyerId, ap.price as price, ap.sold_at as soldAt, p.image_id as imageId, p.title as title, p.tags as tags\n" +
-            "from (select *, rank() over (partition by h.product_id order by price desc, sold_at asc) as rank from history h) as ap join product p on ap.product_id = p.product_id\n" +
-            "where ap.rank <= 1\n" +
+            "from (select *, rank() over (partition by h.product_id order by price desc, sold_at asc) as rk from history h) as ap join product p on ap.product_id = p.product_id\n" +
+            "where ap.rk <= 1\n" +
             "order by price desc, sold_at asc\n" +
             "LIMIT 30", nativeQuery = true)
     List<ProductTop> findRankViewAllDto();

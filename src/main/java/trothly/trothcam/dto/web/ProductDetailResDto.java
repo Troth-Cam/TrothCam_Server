@@ -18,7 +18,8 @@ public class ProductDetailResDto {
 
     private Long productId;
     private Long imageId;
-    private Long ownerId;
+    private String ownerToken;
+    private String authorshipToken;
     private String title;
     private int tags;
     private Long price;
