@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductsResDto<T> {
 
+    private Long productId;
     private String title;
     private String ownerWebId;
     private String soldAt;
