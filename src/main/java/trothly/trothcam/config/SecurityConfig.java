@@ -64,7 +64,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/health-check").permitAll()
                 .antMatchers("/sample/**").permitAll()
                 .antMatchers("/api/image/**").permitAll()
-                .antMatchers("/api/products/**").permitAll()
                 .antMatchers("/api/product-detail").permitAll()
                 .antMatchers("/api/product-ranking/**").permitAll()
                 .antMatchers("/api/view-all/**").permitAll()

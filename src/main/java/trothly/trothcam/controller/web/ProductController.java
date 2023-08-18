@@ -41,7 +41,6 @@ public class ProductController {
             result = productService.findPrivateProducts(webId);
         } else throw new BaseException(ErrorCode._BAD_REQUEST);
 
-        // TODO: 2023/08/17 오류메세지 json 출력 안됨
         if (result.isEmpty()) {
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
         }
