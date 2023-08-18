@@ -102,6 +102,18 @@ public class ProductService {
                 () -> new BadRequestException("존재하지 않는 상품입니다.")
         );
 
+        Image image = imageRepository.findById(product.getImage().getId()).orElseThrow(
+                () -> new BadRequestException("존재하지 않는 이미지입니다.")
+        );
+
+        Member findOwner = memberRepository.findById(product.getMember().getId()).orElseThrow(
+                () -> new BadRequestException("존재하지 않는 회원입니다.")
+        );
+
+        Member findAuthorship = memberRepository.findById(image.getMember().getId()).orElseThrow(
+                () -> new BadRequestException("존재하지 않는 회원입니다.")
+        );
+
         // 조회수 갱신
         product.updateViews(product.getViews() + 1);
 
@@ -118,7 +130,7 @@ public class ProductService {
 
         List<HistoryDto> historyDto = historyService.findAllHistory(req);
 
-        return new ProductDetailResDto(req.getProductId(), product.getImage().getId(), product.getMember().getId(), product.getTitle(),
+        return new ProductDetailResDto(req.getProductId(), product.getImage().getId(), findOwner.getWebToken(), findAuthorship.getWebToken(), product.getTitle(),
                 product.getTags(), product.getPrice(), product.getDescription(),product.getViews(), likes, product.getPublicYn(), product.getCreatedAt(),
                 product.getLastModifiedAt(), liked, historyDto);
     }
@@ -132,6 +144,18 @@ public class ProductService {
                 () -> new BadRequestException("존재하지 않는 상품입니다.")
         );
 
+        Image image = imageRepository.findById(product.getImage().getId()).orElseThrow(
+                () -> new BadRequestException("존재하지 않는 이미지입니다.")
+        );
+
+        Member findOwner = memberRepository.findById(product.getMember().getId()).orElseThrow(
+                () -> new BadRequestException("존재하지 않는 회원입니다.")
+        );
+
+        Member findAuthorship = memberRepository.findById(image.getMember().getId()).orElseThrow(
+                () -> new BadRequestException("존재하지 않는 회원입니다.")
+        );
+
         // 조회수 갱신
         product.updateViews(product.getViews() + 1);
 
@@ -139,52 +163,33 @@ public class ProductService {
 
         List<HistoryDto> historyDto = historyService.findAllHistory(req);
 
-        return new ProductDetailResDto(req.getProductId(), product.getImage().getId(), product.getMember().getId(), product.getTitle(),
+        return new ProductDetailResDto(req.getProductId(), product.getImage().getId(), findOwner.getWebToken(), findAuthorship.getWebToken(), product.getTitle(),
                 product.getTags(), product.getPrice(), product.getDescription(),product.getViews(), likes, product.getPublicYn(), product.getCreatedAt(),
                 product.getLastModifiedAt(), liked, historyDto);
     }
 
     /* 메인 랭킹 top 조회 */
-//    @Transactional
-//    public List<ProductRankResDto> findProductRankTop() {
-//        List<Tuple> productRankDtos = productRepository.findProductRandDto();
-//
-//        List<ProductRankResDto> rankResDtos = productRankDtos.stream()
-//                .map(t -> {
-//                    Optional<Member> owner = memberRepository.findById(Long.valueOf(t.get(3, Integer.class)));
-//                    Optional<Image> image = imageRepository.findById(Long.valueOf(t.get(6, Integer.class)));
-//
-//                    return new ProductRankResDto(
-//                            Long.valueOf(t.get(0, Integer.class)),
-//                            Long.valueOf(t.get(1, Integer.class)),
-//                            owner.get().getWebToken(),
-//                            owner.get().getName(),
-//                            image.get().getMember().getWebToken(),
-//                            t.get(7, String.class),
-//                            t.get(8, Integer.class),
-//                            image.get().getImageUrl(),
-//                            Long.valueOf(t.get(4, Integer.class)),
-//                            t.get(5, LocalDateTime.class)
-//                    );
-//                }).collect(Collectors.toList());
-//
-////        List<ProductRankResDto> rankResDtos = new ArrayList<>();
-////
-////        for (ProductRepository.ProductTop productRank : productRankDtos) {
-////            Optional<Member> owner = memberRepository.findById(productRank.getBuyerId());
-////            Optional<Image> image = imageRepository.findById(productRank.getImageId());
-////
-////            if(owner.isPresent() && image.isPresent()) {
-////                ProductRankResDto productRankResDto = new ProductRankResDto(productRank.getHistoryId(), productRank.getProductId(), owner.get().getWebToken(), owner.get().getName(),
-////                        image.get().getMember().getWebToken(), productRank.getTitle(), productRank.getTags(), image.get().getImageUrl(),
-////                        productRank.getPrice(), productRank.getSoldAt());
-////
-////                rankResDtos.add(productRankResDto);
-////            }
-////        }
-//
-//        return rankResDtos;
-//    }
+    @Transactional
+    public List<ProductRankResDto> findProductRankTop() {
+        List<ProductRepository.ProductTop> productRankDtos = productRepository.findProductRandDto();
+
+        List<ProductRankResDto> rankResDtos = new ArrayList<>();
+
+        for (ProductRepository.ProductTop productRank : productRankDtos) {
+            Optional<Member> owner = memberRepository.findById(productRank.getBuyerId());
+            Optional<Image> image = imageRepository.findById(productRank.getImageId());
+
+            if(owner.isPresent() && image.isPresent()) {
+                ProductRankResDto productRankResDto = new ProductRankResDto(productRank.getHistoryId(), productRank.getProductId(), owner.get().getWebToken(), owner.get().getName(),
+                        image.get().getMember().getWebToken(), productRank.getTitle(), productRank.getTags(), image.get().getImageUrl(),
+                        productRank.getPrice(), productRank.getSoldAt());
+
+                rankResDtos.add(productRankResDto);
+            }
+        }
+
+        return rankResDtos;
+    }
 
     /* 메인 랭킹 latest 조회 */
     @Transactional
