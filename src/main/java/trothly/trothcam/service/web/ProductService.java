@@ -20,6 +20,7 @@ import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.ErrorCode;
 import trothly.trothcam.exception.custom.BadRequestException;
 
+import javax.persistence.Tuple;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -144,27 +145,46 @@ public class ProductService {
     }
 
     /* 메인 랭킹 top 조회 */
-    @Transactional
-    public List<ProductRankResDto> findProductRankTop() {
-        List<ProductRepository.ProductTop> productRankDtos = productRepository.findProductRandDto();
-
-        List<ProductRankResDto> rankResDtos = new ArrayList<>();
-
-        for (ProductRepository.ProductTop productRank : productRankDtos) {
-            Optional<Member> owner = memberRepository.findById(productRank.getBuyerId());
-            Optional<Image> image = imageRepository.findById(productRank.getImageId());
-
-            if(owner.isPresent() && image.isPresent()) {
-                ProductRankResDto productRankResDto = new ProductRankResDto(productRank.getHistoryId(), productRank.getProductId(), owner.get().getWebToken(), owner.get().getName(),
-                        image.get().getMember().getWebToken(), productRank.getTitle(), productRank.getTags(), image.get().getImageUrl(),
-                        productRank.getPrice(), productRank.getSoldAt());
-
-                rankResDtos.add(productRankResDto);
-            }
-        }
-
-        return rankResDtos;
-    }
+//    @Transactional
+//    public List<ProductRankResDto> findProductRankTop() {
+//        List<Tuple> productRankDtos = productRepository.findProductRandDto();
+//
+//        List<ProductRankResDto> rankResDtos = productRankDtos.stream()
+//                .map(t -> {
+//                    Optional<Member> owner = memberRepository.findById(Long.valueOf(t.get(3, Integer.class)));
+//                    Optional<Image> image = imageRepository.findById(Long.valueOf(t.get(6, Integer.class)));
+//
+//                    return new ProductRankResDto(
+//                            Long.valueOf(t.get(0, Integer.class)),
+//                            Long.valueOf(t.get(1, Integer.class)),
+//                            owner.get().getWebToken(),
+//                            owner.get().getName(),
+//                            image.get().getMember().getWebToken(),
+//                            t.get(7, String.class),
+//                            t.get(8, Integer.class),
+//                            image.get().getImageUrl(),
+//                            Long.valueOf(t.get(4, Integer.class)),
+//                            t.get(5, LocalDateTime.class)
+//                    );
+//                }).collect(Collectors.toList());
+//
+////        List<ProductRankResDto> rankResDtos = new ArrayList<>();
+////
+////        for (ProductRepository.ProductTop productRank : productRankDtos) {
+////            Optional<Member> owner = memberRepository.findById(productRank.getBuyerId());
+////            Optional<Image> image = imageRepository.findById(productRank.getImageId());
+////
+////            if(owner.isPresent() && image.isPresent()) {
+////                ProductRankResDto productRankResDto = new ProductRankResDto(productRank.getHistoryId(), productRank.getProductId(), owner.get().getWebToken(), owner.get().getName(),
+////                        image.get().getMember().getWebToken(), productRank.getTitle(), productRank.getTags(), image.get().getImageUrl(),
+////                        productRank.getPrice(), productRank.getSoldAt());
+////
+////                rankResDtos.add(productRankResDto);
+////            }
+////        }
+//
+//        return rankResDtos;
+//    }
 
     /* 메인 랭킹 latest 조회 */
     @Transactional
