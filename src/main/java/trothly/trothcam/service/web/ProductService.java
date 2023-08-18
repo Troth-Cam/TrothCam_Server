@@ -56,7 +56,7 @@ public class ProductService {
                     .orElse(p.getLastModifiedAt());
             boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
 
-            ProductsResDto dto = new ProductsResDto(p.getTitle(), p.getMember().getWebId(),
+            ProductsResDto dto = new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebId(),
                     soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), p.getPrice(), isLiked);
 
             result.add(dto);
@@ -83,7 +83,7 @@ public class ProductService {
                 price = 0L;
             }
 
-            ProductsResDto dto = new ProductsResDto(p.getTitle(), p.getMember().getWebId(),
+            ProductsResDto dto = new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebId(),
                     soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), price, isLiked);
 
             result.add(dto);
