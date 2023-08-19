@@ -2,6 +2,8 @@ package trothly.trothcam.service.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.history.History;
@@ -28,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static trothly.trothcam.exception.base.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -99,19 +103,19 @@ public class ProductService {
         Boolean liked = false;
 
         Product product = productRepository.findById(req.getProductId()).orElseThrow(
-                () -> new BadRequestException("존재하지 않는 상품입니다.")
+                () -> new BaseException(PRODUCT_IS_NOT_FOUND)
         );
 
         Image image = imageRepository.findById(product.getImage().getId()).orElseThrow(
-                () -> new BadRequestException("존재하지 않는 이미지입니다.")
+                () -> new BaseException(IMAGE_NOT_FOUND)
         );
 
         Member findOwner = memberRepository.findById(product.getMember().getId()).orElseThrow(
-                () -> new BadRequestException("존재하지 않는 회원입니다.")
+                () -> new BaseException(MEMBER_NOT_FOUND)
         );
 
         Member findAuthorship = memberRepository.findById(image.getMember().getId()).orElseThrow(
-                () -> new BadRequestException("존재하지 않는 회원입니다.")
+                () -> new BaseException(MEMBER_NOT_FOUND)
         );
 
         // 조회수 갱신
@@ -141,19 +145,19 @@ public class ProductService {
         Boolean liked = false;
 
         Product product = productRepository.findById(req.getProductId()).orElseThrow(
-                () -> new BadRequestException("존재하지 않는 상품입니다.")
+                () -> new BaseException(PRODUCT_IS_NOT_FOUND)
         );
 
         Image image = imageRepository.findById(product.getImage().getId()).orElseThrow(
-                () -> new BadRequestException("존재하지 않는 이미지입니다.")
+                () -> new BaseException(IMAGE_NOT_FOUND)
         );
 
         Member findOwner = memberRepository.findById(product.getMember().getId()).orElseThrow(
-                () -> new BadRequestException("존재하지 않는 회원입니다.")
+                () -> new BaseException(MEMBER_NOT_FOUND)
         );
 
         Member findAuthorship = memberRepository.findById(image.getMember().getId()).orElseThrow(
-                () -> new BadRequestException("존재하지 않는 회원입니다.")
+                () -> new BaseException(MEMBER_NOT_FOUND)
         );
 
         // 조회수 갱신
@@ -212,6 +216,48 @@ public class ProductService {
         }
 
         return latestResDtos;
+    }
+
+    /* 메인 페이징 처리 - top */
+    @Transactional
+    public ProductsPagingListResDto getProductsTop(int page) {
+        try {
+            PageRequest pageRequest = PageRequest.of(page, 8);
+            Page<ProductRepository.ProductTop> productTops = productRepository.findRankPagingDto(pageRequest);
+            List<ProductRankResDto> topPagingDto = productTops.stream()
+                    .map(t -> {
+                        Optional<Member> owner = memberRepository.findById(t.getBuyerId());
+                        Optional<Image> image = imageRepository.findById(t.getImageId());
+
+                        return new ProductRankResDto(t.getHistoryId(), t.getProductId(), owner.get().getWebToken(), owner.get().getName(),
+                                image.get().getMember().getWebToken(), t.getTitle(), t.getTags(), image.get().getImageUrl(),
+                                t.getPrice(), t.getSoldAt());
+                    }).collect(Collectors.toList());
+            return new ProductsPagingListResDto(topPagingDto, productTops.getTotalPages());
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.DATABASE_ERROR);
+        }
+    }
+
+    /* 메인 페이징 처리 - top */
+    @Transactional
+    public ProductsPagingListResDto getProductsLatest(int page) {
+        try {
+            PageRequest pageRequest = PageRequest.of(page, 8);
+            Page<ProductRepository.ProductTop> productLatests = productRepository.findLatestPagingDto(pageRequest);
+            List<ProductRankResDto> latestPagingDto = productLatests.stream()
+                    .map(t -> {
+                        Optional<Member> owner = memberRepository.findById(t.getBuyerId());
+                        Optional<Image> image = imageRepository.findById(t.getImageId());
+
+                        return new ProductRankResDto(t.getHistoryId(), t.getProductId(), owner.get().getWebToken(), owner.get().getName(),
+                                image.get().getMember().getWebToken(), t.getTitle(), t.getTags(), image.get().getImageUrl(),
+                                t.getPrice(), t.getSoldAt());
+                    }).collect(Collectors.toList());
+            return new ProductsPagingListResDto(latestPagingDto, productLatests.getTotalPages());
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.DATABASE_ERROR);
+        }
     }
 
     /* view all top 조회 */

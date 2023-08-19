@@ -63,6 +63,9 @@ public class Product extends BaseTimeEntity {
         this.publicYn = publicYn;
     }
 
+    public void updateOwner(Member owner) {
+        this.member = owner;
+    }
     public void updateInfo(PublicResDto publicResDto) {
         this.price = publicResDto.getPrice();
         this.description = publicResDto.getDescription();
