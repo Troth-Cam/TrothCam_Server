@@ -99,7 +99,7 @@ public class ProductController {
 
     /* 메인 화면 페이징 처리 - 로그인0 */
     @GetMapping("/{webId}/product-ranking/{type}/{page}")
-    public BaseResponse<ProductsPagingLikedResDto> getProducts(@PathVariable String webId, @PathVariable String type, @PathVariable int page, @AuthenticationPrincipal Member member) {
+    public BaseResponse<ProductsPagingListResDto> getProducts(@PathVariable String webId, @PathVariable String type, @PathVariable int page, @AuthenticationPrincipal Member member) {
         if(!member.getWebId().equals(webId)) {
             throw new BaseException(MEMBER_NOT_FOUND);
         }

@@ -11,6 +11,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class ProductsPagingListResDto {
-    private List<ProductRankResDto> getProductRankResDto;
+    private List<ProductPagingResDto> getProductRankResDto;
     private int totalPages;
 }
