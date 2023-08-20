@@ -56,12 +56,16 @@ public class ProductService {
 
         List<ProductsResDto> result = findProducts.stream()
                 .map(p -> {
-                    LocalDateTime soldAt = historyRepository.findTopByProduct_IdOrderBySoldAt(p.getId())
-                            .orElse(p.getLastModifiedAt());
+                    Optional<History> history = historyRepository.findTopByProduct_IdOrderBySoldAt(p.getId());
                     boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
 
+                    if(history.isEmpty())
+                        return new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebId(),
+                                p.getLastModifiedAt(), p.getPrice(), isLiked);
+
                     return new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebId(),
-                            soldAt, p.getPrice(), isLiked);
+                            history.get().getSoldAt(), p.getPrice(), isLiked);
+
                 })
                 .collect(Collectors.toList());
 
