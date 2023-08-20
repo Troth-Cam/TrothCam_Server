@@ -32,6 +32,9 @@ public enum ErrorCode { // BaseResponseStatus와 같은 역할
     NOT_LIKED(2014, "좋아요를 누르지 않은 상품입니다.", BAD_REQUEST),
     HISTORIES_NOT_FOUND(2015, "거래 내역이 존재하지 않습니다.", BAD_REQUEST),
     PRODUCT_NOT_FOUND(2016, "인증서가 존재하지 않습니다.", BAD_REQUEST),
+    SAME_MEMBER(2017, "상품의 소유자와 현재 구매하려고 하는 사용자가 같습니다.", BAD_REQUEST),
+    PRODUCT_IS_NOT_FOUND(2018, "존재하지 않는 상품입니다.", BAD_REQUEST),
+    IMAGE_NOT_FOUND(2019, "존재하지 않는 이미지입니다.", BAD_REQUEST),
 
     /**
      * 3000 : Response 오류

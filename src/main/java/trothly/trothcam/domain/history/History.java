@@ -45,4 +45,10 @@ public class History {
     @Column(name = "sold_at", updatable = false, nullable = false)
     private LocalDateTime soldAt;
 
+    public History(Product product, Member seller, Member buyer, Long price) {
+        this.product = product;
+        this.seller = seller;
+        this.buyer = buyer;
+        this.price = price;
+    }
 }
