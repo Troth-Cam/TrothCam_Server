@@ -17,6 +17,7 @@ import trothly.trothcam.service.web.ProductService;
 import java.util.ArrayList;
 import java.util.List;
 
+import static trothly.trothcam.exception.base.ErrorCode.MEMBER_NOT_FOUND;
 import static trothly.trothcam.exception.base.ErrorCode.REQUEST_ERROR;
 
 @Slf4j
@@ -83,7 +84,7 @@ public class ProductController {
         return BaseResponse.onSuccess(result);
     }
 
-    /* 메인 화면 페이징 처리 */
+    /* 메인 화면 페이징 처리 - 로그인x */
     @GetMapping("/product-ranking/{type}/{page}")
     public BaseResponse<ProductsPagingListResDto> getProducts(@PathVariable String type, @PathVariable int page) {
         if(type.equals("top") && page >= 0) {
@@ -94,6 +95,22 @@ public class ProductController {
             throw new BaseException(REQUEST_ERROR);
         }
 
+    }
+
+    /* 메인 화면 페이징 처리 - 로그인0 */
+    @GetMapping("/{webId}/product-ranking/{type}/{page}")
+    public BaseResponse<ProductsPagingLikedResDto> getProducts(@PathVariable String webId, @PathVariable String type, @PathVariable int page, @AuthenticationPrincipal Member member) {
+        if(!member.getWebId().equals(webId)) {
+            throw new BaseException(MEMBER_NOT_FOUND);
+        }
+
+        if(type.equals("top") && page >= 0) {
+            return BaseResponse.onSuccess(productService.getProductsLikedTop(page, member));
+        } else if (type.equals("latest") && page >= 0) {
+            return BaseResponse.onSuccess(productService.getProductsLikedLatest(page, member));
+        } else {
+            throw new BaseException(REQUEST_ERROR);
+        }
     }
 
     /* view all */
