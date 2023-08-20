@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface HistoryRepository extends JpaRepository<History, Long> {
 
     List<History> findAllByProductIdOrderBySoldAtDesc(Long productId);
-    Optional<LocalDateTime> findTopByProduct_IdOrderBySoldAt(Long productId);
+    Optional<History> findTopByProduct_IdOrderBySoldAt(Long productId);
 }
