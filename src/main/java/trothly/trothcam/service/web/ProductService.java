@@ -54,18 +54,16 @@ public class ProductService {
         if (findProducts == null || findProducts.isEmpty())
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
 
-        List<ProductsResDto> result = new ArrayList<>();
-        for (int i = 0; i < findProducts.size(); i++) {
-            Product p = findProducts.get(i);
-            LocalDateTime soldAt = historyRepository.findTopByProduct_IdOrderBySoldAt(p.getId())
-                    .orElse(p.getLastModifiedAt());
-            boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
+        List<ProductsResDto> result = findProducts.stream()
+                .map(p -> {
+                    LocalDateTime soldAt = historyRepository.findTopByProduct_IdOrderBySoldAt(p.getId())
+                            .orElse(p.getLastModifiedAt());
+                    boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
 
-            ProductsResDto dto = new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebId(),
-                    soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), p.getPrice(), isLiked);
-
-            result.add(dto);
-        }
+                    return new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebId(),
+                            soldAt, p.getPrice(), isLiked);
+                })
+                .collect(Collectors.toList());
 
         return result;
     }
@@ -78,21 +76,19 @@ public class ProductService {
         if (findProducts == null || findProducts.isEmpty())
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
 
-        List<ProductsResDto> result = new ArrayList<>();
-        for (int i = 0; i < findProducts.size(); i++) {
-            Product p = findProducts.get(i);
-            LocalDateTime soldAt = p.getLastModifiedAt();
-            boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
-            Long price = p.getPrice();
-            if (price == null) {
-                price = 0L;
-            }
+        List<ProductsResDto> result = findProducts.stream()
+                .map(p->{
+                    LocalDateTime soldAt = p.getLastModifiedAt();
+                    boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
+                    Long price = p.getPrice();
+                    if (price == null) {
+                        price = 0L;
+                    }
 
-            ProductsResDto dto = new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebId(),
-                    soldAt.format(DateTimeFormatter.ofPattern("YYYYMMdd")), price, isLiked);
-
-            result.add(dto);
-        }
+                    return new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebId(),
+                            soldAt, price, isLiked);
+                })
+                .collect(Collectors.toList());
 
         return result;
     }
