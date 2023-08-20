@@ -224,14 +224,14 @@ public class ProductService {
         try {
             PageRequest pageRequest = PageRequest.of(page, 8);
             Page<ProductRepository.ProductTop> productTops = productRepository.findRankPagingDto(pageRequest);
-            List<ProductRankResDto> topPagingDto = productTops.stream()
+            List<ProductPagingResDto> topPagingDto = productTops.stream()
                     .map(t -> {
                         Optional<Member> owner = memberRepository.findById(t.getBuyerId());
                         Optional<Image> image = imageRepository.findById(t.getImageId());
 
-                        return new ProductRankResDto(t.getHistoryId(), t.getProductId(), owner.get().getWebToken(), owner.get().getName(),
-                                image.get().getMember().getWebToken(), t.getTitle(), t.getTags(), image.get().getImageUrl(),
-                                t.getPrice(), t.getSoldAt());
+                        return new ProductPagingResDto(t.getHistoryId(), t.getProductId(), owner.get().getWebId(), owner.get().getWebToken(), owner.get().getName(),
+                                image.get().getMember().getWebId(), image.get().getMember().getWebToken(), t.getTitle(), t.getTags(), image.get().getImageUrl(),
+                                t.getPrice(), t.getSoldAt(), false);
                     }).collect(Collectors.toList());
             return new ProductsPagingListResDto(topPagingDto, productTops.getTotalPages());
         } catch (Exception e) {
@@ -245,14 +245,14 @@ public class ProductService {
         try {
             PageRequest pageRequest = PageRequest.of(page, 8);
             Page<ProductRepository.ProductTop> productLatest = productRepository.findLatestPagingDto(pageRequest);
-            List<ProductRankResDto> latestPagingDto = productLatest.stream()
+            List<ProductPagingResDto> latestPagingDto = productLatest.stream()
                     .map(t -> {
                         Optional<Member> owner = memberRepository.findById(t.getBuyerId());
                         Optional<Image> image = imageRepository.findById(t.getImageId());
 
-                        return new ProductRankResDto(t.getHistoryId(), t.getProductId(), owner.get().getWebToken(), owner.get().getName(),
-                                image.get().getMember().getWebToken(), t.getTitle(), t.getTags(), image.get().getImageUrl(),
-                                t.getPrice(), t.getSoldAt());
+                        return new ProductPagingResDto(t.getHistoryId(), t.getProductId(), owner.get().getWebId(), owner.get().getWebToken(), owner.get().getName(),
+                                image.get().getMember().getWebId(), image.get().getMember().getWebToken(), t.getTitle(), t.getTags(), image.get().getImageUrl(),
+                                t.getPrice(), t.getSoldAt(), false);
                     }).collect(Collectors.toList());
             return new ProductsPagingListResDto(latestPagingDto, productLatest.getTotalPages());
         } catch (Exception e) {
@@ -262,7 +262,7 @@ public class ProductService {
 
     /* 메인 페이징 처리 로그인0 - top */
     @Transactional
-    public ProductsPagingLikedResDto getProductsLikedTop(int page, Member member) {
+    public ProductsPagingListResDto getProductsLikedTop(int page, Member member) {
         try {
             PageRequest pageRequest = PageRequest.of(page, 8);
             Page<ProductRepository.ProductTop> productTops = productRepository.findRankPagingDto(pageRequest);
@@ -279,11 +279,11 @@ public class ProductService {
                             liked = false;
                         }
 
-                        return new ProductPagingResDto(t.getHistoryId(), t.getProductId(), owner.getWebToken(), owner.getName(),
-                                image.getMember().getWebToken(), t.getTitle(), t.getTags(), image.getImageUrl(),
+                        return new ProductPagingResDto(t.getHistoryId(), t.getProductId(), owner.getWebId(), owner.getWebToken(), owner.getName(),
+                                image.getMember().getWebId(), image.getMember().getWebToken(), t.getTitle(), t.getTags(), image.getImageUrl(),
                                 t.getPrice(), t.getSoldAt(), liked);
                     }).collect(Collectors.toList());
-            return new ProductsPagingLikedResDto(topPagingLikedDto, productTops.getTotalPages());
+            return new ProductsPagingListResDto(topPagingLikedDto, productTops.getTotalPages());
         } catch (Exception e) {
             throw new BaseException(ErrorCode.DATABASE_ERROR);
         }
@@ -291,14 +291,14 @@ public class ProductService {
 
     /* 메인 페이징 처리 로그인0 - latest */
     @Transactional
-    public ProductsPagingLikedResDto getProductsLikedLatest(int page, Member member) {
+    public ProductsPagingListResDto getProductsLikedLatest(int page, Member member) {
         try {
             PageRequest pageRequest = PageRequest.of(page, 8);
             Page<ProductRepository.ProductTop> productLatest = productRepository.findLatestPagingDto(pageRequest);
             List<ProductPagingResDto> latestPagingLikedDto = productLatest.stream()
                     .map(t -> {
-                        Optional<Member> owner = memberRepository.findById(t.getBuyerId());
-                        Optional<Image> image = imageRepository.findById(t.getImageId());
+                        Member owner = memberRepository.findById(t.getBuyerId()).orElseThrow(() -> new BaseException(MEMBER_NOT_FOUND));
+                        Image image = imageRepository.findById(t.getImageId()).orElseThrow(() -> new BaseException(IMAGE_NOT_FOUND));
                         Optional<LikeProduct> like = likeProductRepository.findByProductIdAndMemberId(t.getProductId(), member.getId());
 
                         boolean liked = false;
@@ -308,11 +308,11 @@ public class ProductService {
                             liked = false;
                         }
 
-                        return new ProductPagingResDto(t.getHistoryId(), t.getProductId(), owner.get().getWebToken(), owner.get().getName(),
-                                image.get().getMember().getWebToken(), t.getTitle(), t.getTags(), image.get().getImageUrl(),
+                        return new ProductPagingResDto(t.getHistoryId(), t.getProductId(), owner.getWebId(), owner.getWebToken(), owner.getName(),
+                                image.getMember().getWebId(), image.getMember().getWebToken(), t.getTitle(), t.getTags(), image.getImageUrl(),
                                 t.getPrice(), t.getSoldAt(), liked);
                     }).collect(Collectors.toList());
-            return new ProductsPagingLikedResDto(latestPagingLikedDto, productLatest.getTotalPages());
+            return new ProductsPagingListResDto(latestPagingLikedDto, productLatest.getTotalPages());
         } catch (Exception e) {
             throw new BaseException(ErrorCode.DATABASE_ERROR);
         }
