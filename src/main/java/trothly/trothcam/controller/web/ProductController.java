@@ -7,10 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import trothly.trothcam.domain.member.Member;
-import trothly.trothcam.dto.web.ProductDetailResDto;
-import trothly.trothcam.dto.web.ProductRankResDto;
-import trothly.trothcam.dto.web.ProductReqDto;
-import trothly.trothcam.dto.web.ProductsResDto;
+import trothly.trothcam.dto.web.*;
 import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.exception.base.ErrorCode;
@@ -84,6 +81,19 @@ public class ProductController {
         }
 
         return BaseResponse.onSuccess(result);
+    }
+
+    /* 메인 화면 페이징 처리 */
+    @GetMapping("/product-ranking/{type}/{page}")
+    public BaseResponse<ProductsPagingListResDto> getProducts(@PathVariable String type, @PathVariable int page) {
+        if(type.equals("top") && page >= 0) {
+            return BaseResponse.onSuccess(productService.getProductsTop(page));
+        } else if (type.equals("latest") && page >= 0) {
+            return BaseResponse.onSuccess(productService.getProductsLatest(page));
+        } else {
+            throw new BaseException(REQUEST_ERROR);
+        }
+
     }
 
     /* view all */

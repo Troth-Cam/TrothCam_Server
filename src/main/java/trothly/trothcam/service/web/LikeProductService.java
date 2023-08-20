@@ -15,8 +15,7 @@ import trothly.trothcam.exception.custom.BadRequestException;
 
 import java.util.Optional;
 
-import static trothly.trothcam.exception.base.ErrorCode.ALREADY_LIKED;
-import static trothly.trothcam.exception.base.ErrorCode.NOT_LIKED;
+import static trothly.trothcam.exception.base.ErrorCode.*;
 
 @Service
 @Transactional
@@ -35,7 +34,7 @@ public class LikeProductService {
         }
 
         Product product = productRepository.findById(req.getProductId()).orElseThrow(
-                () -> new BadRequestException("존재하지 않는 상품입니다.")
+                () -> new BaseException(PRODUCT_IS_NOT_FOUND)
         );
 
         LikeProduct newLike = likeProductRepository.save(new LikeProduct(product, member));
