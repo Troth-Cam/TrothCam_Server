@@ -135,6 +135,8 @@ public class OAuthService {
 
     // refreshToken 만료 후 재로그인 or 탈퇴 후 재로그인
     public LoginResDto reLogin(Member member) {
+        log.info("재로그인 하는 경우");
+
         // accessToken, refreshToken 발급
         String newAccessToken = jwtService.encodeJwtToken(new TokenDto(member.getId()));
         String newRefreshToken = jwtService.encodeJwtRefreshToken(member.getId());
@@ -142,6 +144,7 @@ public class OAuthService {
         member.updateRefreshToken(newRefreshToken);     // DB에 refreshToken 저장
         member.updateStatus("active");                  // inactive -> active로 변환 (탈퇴 후 재로그인만 해당)
 
+        memberRepository.save(member);
         return new LoginResDto(newAccessToken, newRefreshToken);
     }
 
