@@ -60,10 +60,10 @@ public class ProductService {
                     boolean isLiked = likeProductRepository.existsByProduct_IdAndMember_Id(p.getId(), p.getMember().getId());
 
                     if(history.isEmpty())
-                        return new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebId(),
+                        return new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebToken(),
                                 p.getLastModifiedAt(), p.getPrice(), isLiked);
 
-                    return new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebId(),
+                    return new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebToken(),
                             history.get().getSoldAt(), p.getPrice(), isLiked);
 
                 })
@@ -89,7 +89,7 @@ public class ProductService {
                         price = 0L;
                     }
 
-                    return new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebId(),
+                    return new ProductsResDto(p.getId(), p.getTitle(), p.getMember().getWebToken(),
                             soldAt, price, isLiked);
                 })
                 .collect(Collectors.toList());
