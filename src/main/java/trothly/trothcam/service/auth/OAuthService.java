@@ -106,8 +106,8 @@ public class OAuthService {
         String sub = appleInfo.getSub();
 
         Optional<Member> checkSub = memberRepository.findByAppleSub(sub);
-        if(checkSub.isPresent()) {   // 2. email X + sub O (refreshToken 만료 후 재로그인) -> 이미 회원가입한 경우
-            return afterSignup(checkSub.get());
+        if(checkSub.isPresent()) {   // 2. email X + sub O (refreshToken 만료 후 재로그인 or 탈퇴 후 재로그인) -> 이미 회원가입한 경우
+            return reLogin(checkSub.get());
         } else if(email == null) { // 3. email X + sub X
             throw new InvalidTokenException("Apple OAuth Identity Token 값이 올바르지 않습니다.");
         }
@@ -131,6 +131,18 @@ public class OAuthService {
 
         // refreshToken, accessToken, webToken 발급
         return afterSignup(member);
+    }
+
+    // refreshToken 만료 후 재로그인 or 탈퇴 후 재로그인
+    public LoginResDto reLogin(Member member) {
+        // accessToken, refreshToken 발급
+        String newAccessToken = jwtService.encodeJwtToken(new TokenDto(member.getId()));
+        String newRefreshToken = jwtService.encodeJwtRefreshToken(member.getId());
+
+        member.updateRefreshToken(newRefreshToken);     // DB에 refreshToken 저장
+        member.updateStatus("active");                  // inactive -> active로 변환 (탈퇴 후 재로그인만 해당)
+
+        return new LoginResDto(newAccessToken, newRefreshToken);
     }
 
     // refreshToken, accessToken, webToken 발급
