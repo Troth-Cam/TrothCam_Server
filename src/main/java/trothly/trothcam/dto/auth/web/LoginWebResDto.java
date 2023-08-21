@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 public class LoginWebResDto {
     private String accessToken;
     private String refreshToken;
+    private String webToken;
 }
