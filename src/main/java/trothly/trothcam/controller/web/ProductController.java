@@ -31,12 +31,12 @@ public class ProductController {
     /* 인증서 조회 */
     @GetMapping("/products")
     public BaseResponse<List<ProductsResDto>> findPublicProducts(
-            @RequestParam(value = "web-id") String webId, @RequestParam(value = "public") String isPublic) {
+            @RequestParam(value = "webToken") String webToken, @RequestParam(value = "public") String isPublic) {
         List<ProductsResDto> result;
         if (isPublic.equals("Y")) {
-            result = productService.findPublicProducts(webId);
+            result = productService.findPublicProducts(webToken);
         } else if (isPublic.equals("N")) {
-            result = productService.findPrivateProducts(webId);
+            result = productService.findPrivateProducts(webToken);
         } else throw new BaseException(ErrorCode._BAD_REQUEST);
 
         if (result.isEmpty()) {

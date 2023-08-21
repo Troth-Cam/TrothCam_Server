@@ -90,7 +90,7 @@ public class OAuthService {
         member.updateStatus("active");                  // inactive -> active로 변환
         memberRepository.save(member);
 
-        return new LoginWebResDto(newAccessToken, newRefreshToken);
+        return new LoginWebResDto(newAccessToken, newRefreshToken, member.getWebToken());
     }
 
     // 애플 로그인
