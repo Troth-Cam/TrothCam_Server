@@ -107,6 +107,7 @@ public class OAuthService {
 
         Optional<Member> checkSub = memberRepository.findByAppleSub(sub);
         if(checkSub.isPresent()) {   // 2. email X + sub O (refreshToken 만료 후 재로그인 or 탈퇴 후 재로그인) -> 이미 회원가입한 경우
+            log.info("이미 회원가입 한 회원");
             return reLogin(checkSub.get());
         } else if(email == null) { // 3. email X + sub X
             throw new InvalidTokenException("Apple OAuth Identity Token 값이 올바르지 않습니다.");
