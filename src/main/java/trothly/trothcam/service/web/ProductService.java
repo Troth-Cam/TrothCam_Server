@@ -48,8 +48,8 @@ public class ProductService {
 
     /* 공개 인증서 조회 */
     @Transactional(readOnly = true)
-    public List<ProductsResDto> findPublicProducts(String webId) throws BaseException {
-        List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn(webId, PublicYn.Y);
+    public List<ProductsResDto> findPublicProducts(String webToken) throws BaseException {
+        List<Product> findProducts = productRepository.findAllByMember_WebTokenAndPublicYn(webToken, PublicYn.Y);
 
         if (findProducts == null || findProducts.isEmpty())
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
@@ -74,8 +74,8 @@ public class ProductService {
 
     /* 비공개 인증서 조회 */
     @Transactional(readOnly = true)
-    public List<ProductsResDto> findPrivateProducts(String webId) throws BaseException {
-        List<Product> findProducts = productRepository.findAllByMember_WebIdAndPublicYn(webId, PublicYn.N);
+    public List<ProductsResDto> findPrivateProducts(String webToken) throws BaseException {
+        List<Product> findProducts = productRepository.findAllByMember_WebTokenAndPublicYn(webToken, PublicYn.N);
 
         if (findProducts == null || findProducts.isEmpty())
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
