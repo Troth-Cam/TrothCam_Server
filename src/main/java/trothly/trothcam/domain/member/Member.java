@@ -125,7 +125,7 @@ public class Member extends BaseTimeEntity implements UserDetails {
     // 계정 이름
     @Override
     public String getUsername() {
-        return null;
+        return getName();
     }
 
     // 계정의 만료 여부
