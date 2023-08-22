@@ -91,24 +91,18 @@ public class ProductController {
 
     /* 메인 화면 페이징 처리 - 로그인0 */
     @GetMapping("/{webId}/product-ranking/{type}/{page}")
-    public BaseResponse<ProductsPagingListResDto> getProducts(@PathVariable String webId, @PathVariable String type, @PathVariable int page) {
-        //log.info("Member: " + member.toString());
-        log.info("프론트 요청 webId: " + webId);
-        log.info("프론트 요청 webtype: " + type);
-        log.info("api 요청 들어옴");
-//        if(!member.getWebId().equals(webId)) {
-//            throw new BaseException(MEMBER_NOT_FOUND);
-//        }
-//
-//        if(type.equals("top") && page >= 0) {
-//            log.info("top 조건 해당");
-//            return BaseResponse.onSuccess(productService.getProductsLikedTop(page, member));
-//        } else if (type.equals("latest") && page >= 0) {
-//            return BaseResponse.onSuccess(productService.getProductsLikedLatest(page, member));
-//        } else {
-//            throw new BaseException(REQUEST_ERROR);
-//        }
-        return BaseResponse.onSuccess(null);
+    public BaseResponse<ProductsPagingListResDto> getProducts(@PathVariable String webId, @PathVariable String type, @PathVariable int page, @AuthenticationPrincipal Member member) {
+        if(!member.getWebId().equals(webId)) {
+            throw new BaseException(MEMBER_NOT_FOUND);
+        }
+
+        if(type.equals("top") && page >= 0) {
+            return BaseResponse.onSuccess(productService.getProductsLikedTop(page, member));
+        } else if (type.equals("latest") && page >= 0) {
+            return BaseResponse.onSuccess(productService.getProductsLikedLatest(page, member));
+        } else {
+            throw new BaseException(REQUEST_ERROR);
+        }
     }
 
     /* view all */
