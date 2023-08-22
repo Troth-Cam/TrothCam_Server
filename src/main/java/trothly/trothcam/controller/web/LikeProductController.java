@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import trothly.trothcam.domain.member.Member;
-import trothly.trothcam.dto.web.ProductReqDto;
 import trothly.trothcam.dto.web.LikeResDto;
 import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.exception.custom.BadRequestException;
@@ -18,24 +17,16 @@ public class LikeProductController {
     private final LikeProductService likeProductService;
 
     /* 좋아요 저장 */
-    @PostMapping("")
-    public BaseResponse<LikeResDto> saveLike(@RequestBody ProductReqDto req, @AuthenticationPrincipal Member member) {
-        if(req.getProductId() == null) {
-            throw new BadRequestException("존재하지 않는 상품 아이디 입니다.");
-        }
-
-        LikeResDto res = likeProductService.saveLike(req, member);
+    @PostMapping("/{productId}")
+    public BaseResponse<LikeResDto> saveLike(@PathVariable Long productId, @AuthenticationPrincipal Member member) {
+        LikeResDto res = likeProductService.saveLike(productId, member);
         return BaseResponse.onSuccess(res);
     }
 
     /* 좋아요 삭제 */
-    @DeleteMapping("")
-    public BaseResponse<LikeResDto> deleteLike(@RequestBody ProductReqDto req, @AuthenticationPrincipal Member member) {
-        if(req.getProductId() == null) {
-            throw new BadRequestException("존재하지 않는 상품 아이디 입니다.");
-        }
-
-        LikeResDto res = likeProductService.deleteLike(req, member);
+    @DeleteMapping("/{productId}")
+    public BaseResponse<LikeResDto> deleteLike(@PathVariable Long productId, @AuthenticationPrincipal Member member) {
+        LikeResDto res = likeProductService.deleteLike(productId, member);
         return BaseResponse.onSuccess(res);
     }
 }

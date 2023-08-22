@@ -11,10 +11,7 @@ import trothly.trothcam.domain.product.Product;
 import trothly.trothcam.domain.product.ProductRepository;
 import trothly.trothcam.dto.web.HistoryDto;
 import trothly.trothcam.dto.web.HistoryResDto;
-import trothly.trothcam.dto.web.ProductReqDto;
-import trothly.trothcam.dto.web.TransactionReqDto;
 import trothly.trothcam.exception.base.BaseException;
-import trothly.trothcam.exception.custom.BadRequestException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +28,8 @@ public class HistoryService {
     private final MemberRepository memberRepository;
 
     // 거래 내역 전체 조회
-    public List<HistoryDto> findAllHistory(ProductReqDto req) {
-        List<History> findHistories = historyRepository.findAllByProductIdOrderBySoldAtDesc(req.getProductId());
+    public List<HistoryDto> findAllHistory(Long productId) {
+        List<History> findHistories = historyRepository.findAllByProductIdOrderBySoldAtDesc(productId);
 //        if(findHistories == null || findHistories.isEmpty()) {
 //            throw new BaseException(HISTORIES_NOT_FOUND);
 //        }
@@ -48,8 +45,8 @@ public class HistoryService {
     }
 
     // 거래 내역 저장
-    public HistoryResDto saveTransaction(TransactionReqDto req, Member member) {
-        Product product = productRepository.findById(req.getProductId()).orElseThrow(
+    public HistoryResDto saveTransaction(Long productId, Long price, Member member) {
+        Product product = productRepository.findById(productId).orElseThrow(
                 () -> new BaseException(PRODUCT_IS_NOT_FOUND)
         );
 
@@ -61,10 +58,10 @@ public class HistoryService {
             throw new BaseException(SAME_MEMBER);
         }
 
-        History newHistory = historyRepository.save(new History(product, seller, member, req.getPrice()));
+        History newHistory = historyRepository.save(new History(product, seller, member, price));
 
         product.updateOwner(member);
 
-        return new HistoryResDto(newHistory.getId(), product.getId(), member.getId(), seller.getId(), req.getPrice(), newHistory.getSoldAt(), member.getId());
+        return new HistoryResDto(newHistory.getId(), product.getId(), member.getId(), seller.getId(), price, newHistory.getSoldAt(), member.getId());
     }
 }
