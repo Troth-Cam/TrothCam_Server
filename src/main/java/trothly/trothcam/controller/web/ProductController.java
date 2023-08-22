@@ -92,6 +92,9 @@ public class ProductController {
     /* 메인 화면 페이징 처리 - 로그인0 */
     @GetMapping("/{webId}/product-ranking/{type}/{page}")
     public BaseResponse<ProductsPagingListResDto> getProducts(@PathVariable String webId, @PathVariable String type, @PathVariable int page, @AuthenticationPrincipal Member member) {
+        log.info("Member: " + member.toString());
+        log.info("프론트 요청 webId: " + webId);
+        log.info("프론트 요청 webtype: " + type);
         log.info("api 요청 들어옴");
         if(!member.getWebId().equals(webId)) {
             throw new BaseException(MEMBER_NOT_FOUND);
