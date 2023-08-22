@@ -73,7 +73,7 @@ public class OAuthService {
 
 
     /* 웹 로그인 */
-    @Transactional(readOnly = true)
+    @Transactional
     public LoginWebResDto webLogin(LoginWebReqDto req) throws BaseException {
         Member member = memberRepository.findByWebId(req.getId()) // 아이디 일치 여부 판단
                 .orElseThrow(() -> new LoginException("잘못된 아이디 혹은 비밀번호입니다."));
@@ -85,9 +85,12 @@ public class OAuthService {
 
         String newAccessToken = jwtService.encodeJwtToken(new TokenDto(member.getId()));
         String newRefreshToken = jwtService.encodeJwtRefreshToken(member.getId());
-        member.updateRefreshToken(newRefreshToken); // JPA 변경 감지로 DB 업데이트
 
-        return new LoginWebResDto(newAccessToken, newRefreshToken);
+        member.updateRefreshToken(newRefreshToken); // JPA 변경 감지로 DB 업데이트
+        member.updateStatus("active");                  // inactive -> active로 변환
+        memberRepository.save(member);
+
+        return new LoginWebResDto(newAccessToken, newRefreshToken, member.getWebToken());
     }
 
     // 애플 로그인
@@ -103,8 +106,9 @@ public class OAuthService {
         String sub = appleInfo.getSub();
 
         Optional<Member> checkSub = memberRepository.findByAppleSub(sub);
-        if(checkSub.isPresent()) {   // 2. email X + sub O (refreshToken 만료 후 재로그인) -> 이미 회원가입한 경우
-            return afterSignup(checkSub.get());
+        if(checkSub.isPresent()) {   // 2. email X + sub O (refreshToken 만료 후 재로그인 or 탈퇴 후 재로그인) -> 이미 회원가입한 경우
+            log.info("이미 회원가입 한 회원");
+            return reLogin(checkSub.get());
         } else if(email == null) { // 3. email X + sub X
             throw new InvalidTokenException("Apple OAuth Identity Token 값이 올바르지 않습니다.");
         }
@@ -128,6 +132,21 @@ public class OAuthService {
 
         // refreshToken, accessToken, webToken 발급
         return afterSignup(member);
+    }
+
+    // refreshToken 만료 후 재로그인 or 탈퇴 후 재로그인
+    public LoginResDto reLogin(Member member) {
+        log.info("재로그인 하는 경우");
+
+        // accessToken, refreshToken 발급
+        String newAccessToken = jwtService.encodeJwtToken(new TokenDto(member.getId()));
+        String newRefreshToken = jwtService.encodeJwtRefreshToken(member.getId());
+
+        member.updateRefreshToken(newRefreshToken);     // DB에 refreshToken 저장
+        member.updateStatus("active");                  // inactive -> active로 변환 (탈퇴 후 재로그인만 해당)
+
+        memberRepository.save(member);
+        return new LoginResDto(newAccessToken, newRefreshToken);
     }
 
     // refreshToken, accessToken, webToken 발급

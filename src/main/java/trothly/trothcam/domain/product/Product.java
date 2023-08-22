@@ -34,13 +34,14 @@ public class Product extends BaseTimeEntity {
     @JoinColumn(name = "owner_id")
     private Member member;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
 
     @Column(name = "tags", nullable = false)
     private int tags;
 
     @Column(name = "price")
+    @ColumnDefault("0")
     private Long price;
 
     @Column(name = "description", nullable = false)
@@ -62,6 +63,9 @@ public class Product extends BaseTimeEntity {
         this.publicYn = publicYn;
     }
 
+    public void updateOwner(Member owner) {
+        this.member = owner;
+    }
     public void updateInfo(PublicResDto publicResDto) {
         this.price = publicResDto.getPrice();
         this.description = publicResDto.getDescription();

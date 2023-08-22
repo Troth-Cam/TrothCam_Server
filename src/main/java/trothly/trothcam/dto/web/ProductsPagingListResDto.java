@@ -1,15 +1,16 @@
-package trothly.trothcam.dto.auth.web;
+package trothly.trothcam.dto.web;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class LoginWebResDto {
-    private String accessToken;
-    private String refreshToken;
-    private String webToken;
+public class ProductsPagingListResDto {
+    private List<ProductPagingResDto> getProductRankResDto;
+    private int totalPages;
 }

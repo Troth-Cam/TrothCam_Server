@@ -1,5 +1,7 @@
 package trothly.trothcam.domain.product;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,12 +16,12 @@ import static trothly.trothcam.domain.product.PublicYn.N;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    List<Product> findAllByMember_WebIdAndPublicYn(String webId, PublicYn publicYn); // 인증서 조회
+    List<Product> findAllByMember_WebTokenAndPublicYn(String webToken, PublicYn publicYn); // 인증서 조회
     List<Product> findAllByMember_IdAndPublicYn(Long id, PublicYn publicYn); // 인증서 조회
 
     @Query(value = "select ap.history_id as historyId, ap.product_id as productId, ap.seller_id as sellerId, ap.buyer_id as buyerId, ap.price as price, ap.sold_at as soldAt, p.image_id as imageId, p.title as title, p.tags as tags\n" +
-            "from (select *, rank() over (partition by h.product_id order by price desc, sold_at asc) as rank from history h) as ap join product p on ap.product_id = p.product_id\n" +
-            "where ap.rank <= 1\n" +
+            "from (select *, rank() over (partition by h.product_id order by price desc, sold_at asc) as rk from history h) as ap join product p on ap.product_id = p.product_id\n" +
+            "where ap.rk <= 1\n" +
             "order by price desc, sold_at asc\n" +
             "LIMIT 10", nativeQuery = true)
     List<ProductTop> findProductRandDto();
@@ -29,8 +31,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<ProductTop> findProductLatestDto();
 
     @Query(value = "select ap.history_id as historyId, ap.product_id as productId, ap.seller_id as sellerId, ap.buyer_id as buyerId, ap.price as price, ap.sold_at as soldAt, p.image_id as imageId, p.title as title, p.tags as tags\n" +
-            "from (select *, rank() over (partition by h.product_id order by price desc, sold_at asc) as rank from history h) as ap join product p on ap.product_id = p.product_id\n" +
-            "where ap.rank <= 1\n" +
+            "from (select *, rank() over (partition by h.product_id order by price desc, sold_at asc) as rk from history h) as ap join product p on ap.product_id = p.product_id\n" +
+            "where ap.rk <= 1\n" +
             "order by price desc, sold_at asc\n" +
             "LIMIT 30", nativeQuery = true)
     List<ProductTop> findRankViewAllDto();
@@ -39,6 +41,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "from history h join product p on h.product_id = p.product_id order by sold_at desc LIMIT 30", nativeQuery = true)
     List<ProductTop> findRankLatestViewAllDto();
 
+    //페이징 처리
+    @Query(value = "select ap.history_id as historyId, ap.product_id as productId, ap.seller_id as sellerId, ap.buyer_id as buyerId, ap.price as price, ap.sold_at as soldAt, p.image_id as imageId, p.title as title, p.tags as tags\n" +
+            "from (select *, rank() over (partition by h.product_id order by price desc, sold_at asc) as rk from history h) as ap join product p on ap.product_id = p.product_id\n" +
+            "where ap.rk <= 1\n" +
+            "order by price desc, sold_at asc", nativeQuery = true, countQuery = "select count(*) from (select *, rank() over (partition by h.product_id order by h.price desc, sold_at asc) as rk from history h) as ap " +
+            "join product p on ap.product_id = p.product_id where ap.rk <= 1 group by ap.price, sold_at order by ap.price desc, sold_at asc")
+    Page<ProductTop> findRankPagingDto(Pageable pageable);
+
+    @Query(value = "select h.history_id as historyId, h.product_id as productId, h.seller_id as sellerId, h.buyer_id as buyerId, h.price as price, h.sold_at as soldAt, p.image_id as imageId, p.title as title, p.tags as tags \n" +
+            "from history h join product p on h.product_id = p.product_id order by sold_at desc", nativeQuery = true)
+    Page<ProductTop> findLatestPagingDto(Pageable pageable);
 
     // 비공개 인증서 리스트 조회
     List<Product> findAllByMemberAndPublicYn(Member member, PublicYn publicYn);
