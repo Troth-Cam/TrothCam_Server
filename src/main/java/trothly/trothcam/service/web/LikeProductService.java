@@ -8,7 +8,6 @@ import trothly.trothcam.domain.like.LikeProductRepository;
 import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.domain.product.Product;
 import trothly.trothcam.domain.product.ProductRepository;
-import trothly.trothcam.dto.web.ProductReqDto;
 import trothly.trothcam.dto.web.LikeResDto;
 import trothly.trothcam.exception.base.BaseException;
 import trothly.trothcam.exception.custom.BadRequestException;
@@ -26,14 +25,14 @@ public class LikeProductService {
     private final ProductRepository productRepository;
 
     // 좋아요 저장
-    public LikeResDto saveLike(ProductReqDto req, Member member) {
-        Optional<LikeProduct> like = likeProductRepository.findByProductIdAndMemberId(req.getProductId(), member.getId());
+    public LikeResDto saveLike(Long productId, Member member) {
+        Optional<LikeProduct> like = likeProductRepository.findByProductIdAndMemberId(productId, member.getId());
 
         if(like.isPresent()) {
             throw new BaseException(ALREADY_LIKED);
         }
 
-        Product product = productRepository.findById(req.getProductId()).orElseThrow(
+        Product product = productRepository.findById(productId).orElseThrow(
                 () -> new BaseException(PRODUCT_IS_NOT_FOUND)
         );
 
@@ -43,8 +42,8 @@ public class LikeProductService {
     }
 
     // 좋아요 삭제
-    public LikeResDto deleteLike(ProductReqDto req, Member member) {
-        LikeProduct likeProduct = likeProductRepository.findByProductIdAndMemberId(req.getProductId(), member.getId()).orElseThrow(
+    public LikeResDto deleteLike(Long productId, Member member) {
+        LikeProduct likeProduct = likeProductRepository.findByProductIdAndMemberId(productId, member.getId()).orElseThrow(
                 () -> new BaseException(NOT_LIKED)
         );
 
