@@ -38,6 +38,28 @@ oauth:
 jwt:
   secret: ${JWT_SECRET}
 
+# S3
+cloud:
+  aws:
+    s3:
+      bucket: trothcam-bucket
+      uploadPath: ${S3_PATH}
+    credentials:
+      access-key: ${S3_ACCESSKEY}
+      secret-key: ${S3_SECRETKEY}
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    url: ${S3_PATH}
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: ERROR
+
 app:
   google:
     url: https://accounts.google.com/o/oauth2/v2/auth
