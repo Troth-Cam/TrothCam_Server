@@ -1,144 +1,79 @@
 package trothly.trothcam.service;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.SdkClientException;
-import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.UUID;
+import java.util.Optional;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AWSS3Service {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-    private final AmazonS3 amazonS3;
 
-    public String uploadFile(MultipartFile file, int userIdx) throws IOException {
-        String fileName = createFileName(file.getOriginalFilename());
+    @Value("${cloud.aws.s3.uploadPath}")
+    private String defaultUrl;
+    private final AmazonS3Client amazonS3Client;
 
-        try{
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(file.getSize());
-            objectMetadata.setContentType(file.getContentType());
+    // MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
+    public String upload(MultipartFile multipartFile, String dirName) throws IOException { // dirName의 디렉토리가 S3 Bucket 내부에 생성됨
 
-            InputStream inputStream = file.getInputStream();
-            amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
-        } catch(AmazonServiceException e){
-            e.printStackTrace();
-        } catch(SdkClientException e){
-            e.printStackTrace();
-        } catch(IOException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다.");
-        }
-
-        // S3 이미지 서버에 등록한 파일명을 반환
-        return fileName;
+        File uploadFile = convert(multipartFile)
+                .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
+        return upload(uploadFile, dirName);
     }
 
-    public String uploadUserFile(MultipartFile file) throws IOException {
-        String fileName = createFileName(file.getOriginalFilename());
+    private String upload(File uploadFile, String dirName) {
+        String fileName = dirName + "/" + uploadFile.getName();
+        String uploadImageUrl = putS3(uploadFile, fileName);
 
-        try{
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(file.getSize());
-            objectMetadata.setContentType(file.getContentType());
+        removeNewFile(uploadFile);  // convert()함수로 인해서 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)
 
-            InputStream inputStream = file.getInputStream();
-            amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
-            System.out.println(inputStream);
-        } catch(AmazonServiceException e){
-            e.printStackTrace();
-        } catch(SdkClientException e){
-            e.printStackTrace();
-        } catch(IOException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다.");
-        }
-
-        // S3 이미지 서버에 등록한 파일명을 반환
-        return fileName;
+        return uploadImageUrl;      // 업로드된 파일의 S3 URL 주소 반환
     }
 
-    public String uploadAdFile(MultipartFile file) throws IOException {
-        String fileName = createFileName(file.getOriginalFilename());
+    private String putS3(File uploadFile, String fileName) {
+//        amazonS3Client.putObject(
+//                new PutObjectRequest(bucket, fileName, uploadFile)
+//                        .withCannedAcl(CannedAccessControlList.PublicRead)	// PublicRead 권한으로 업로드 됨
+//        );
+        // 이렇게 하면 acl 권한 때문에
 
-        try{
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(file.getSize());
-            objectMetadata.setContentType(file.getContentType());
+        amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, uploadFile));
 
-            InputStream inputStream = file.getInputStream();
-            amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
-        } catch(AmazonServiceException e){
-            e.printStackTrace();
-        } catch(SdkClientException e){
-            e.printStackTrace();
-        } catch(IOException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다.");
-        }
 
-        // S3 이미지 서버에 등록한 파일명을 반환
-        return fileName;
+        return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 
-
-    public boolean deleteImage(String fileName) {
-        amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
-        return true;
-    }
-
-    // 기존 확장자명을 유지하면서, 식별되는 파일명을 생성
-    private String createFileName(String fileName) {
-        return UUID.randomUUID().toString().concat(getFileExtension(fileName));
-    }
-
-    // 파일 확장자 알아내기
-    private String getFileExtension(String fileName) {
-        try {
-            return fileName.substring(fileName.lastIndexOf("."));
-        } catch (StringIndexOutOfBoundsException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일(" + fileName + ") 입니다.");
+    private void removeNewFile(File targetFile) {
+        if(targetFile.delete()) {
+            log.info("파일이 삭제되었습니다.");
+        }else {
+            log.info("파일이 삭제되지 못했습니다.");
         }
     }
 
-    public String uploadChatFile(MultipartFile file) throws IOException {
-        String fileName = createFileName(file.getOriginalFilename());
-
-        try{
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(file.getSize());
-            objectMetadata.setContentType(file.getContentType());
-
-            InputStream inputStream = file.getInputStream();
-            amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
-        } catch(AmazonServiceException e){
-            e.printStackTrace();
-        } catch(SdkClientException e){
-            e.printStackTrace();
-        } catch(IOException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다.");
+    private Optional<File> convert(MultipartFile file) throws  IOException {
+        File convertFile = new File(file.getOriginalFilename()); // 업로드한 파일의 이름
+        if(convertFile.createNewFile()) {
+            try (FileOutputStream fos = new FileOutputStream(convertFile)) {
+                fos.write(file.getBytes());
+            }
+            return Optional.of(convertFile);
         }
-        // S3 이미지 서버에 등록한 파일명을 반환
-        return fileName;
+        return Optional.empty();
     }
-
 
 }

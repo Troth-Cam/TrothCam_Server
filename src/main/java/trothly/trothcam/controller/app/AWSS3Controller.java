@@ -11,6 +11,7 @@ import trothly.trothcam.domain.member.Member;
 import trothly.trothcam.exception.base.BaseResponse;
 import trothly.trothcam.service.AWSS3Service;
 
+import javax.validation.constraints.Positive;
 import java.io.IOException;
 import java.util.List;
 
@@ -26,27 +27,22 @@ public class AWSS3Controller {
 
     // s3에 이미지 업로드 -> 일단 이미지 업로드 되나 확인
     @PostMapping("/image")
-    public BaseResponse<String> uploadImageFile(@RequestPart MultipartFile file) throws IOException {
+    public BaseResponse<String> uploadImageFile(
+            @RequestPart MultipartFile multipartFile) throws IOException {
 
-        String fileUrl = null;
-        if (file != null && !file.isEmpty()) {
-            fileUrl = url + awsS3Service.uploadUserFile(file);
+        String fileName = "";
+        if(multipartFile != null){ // 파일 업로드한 경우에만
+
+            try{// 파일 업로드
+                fileName = awsS3Service.upload(multipartFile, "images"); // S3 버킷의 images 디렉토리 안에 저장됨
+                System.out.println("fileName = " + fileName);
+            }catch (IOException e){
+                return BaseResponse.onSuccess("fail");
+            }
         }
+        return BaseResponse.onSuccess(fileName);
 
-        return BaseResponse.onSuccess(fileUrl);
     }
-
-    // s3에 이미지 업로드, 사용자 image 테이블 레코드 추가 ( 웹 공유, url 컬럼)
-//    @PostMapping("/image")
-//    public BaseResponse<String> uploadImageFile(@RequestPart MultipartFile file, @AuthenticationPrincipal Member member) throws IOException {
-//
-//        String fileUrl = null;
-//        if (file != null && !file.isEmpty()) {
-//            fileUrl = url + awsS3Service.uploadUserFile(file);
-//        }
-//
-//        return BaseResponse.onSuccess(res);
-//    }
 
 
 }
