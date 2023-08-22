@@ -14,7 +14,7 @@ public class ProductsResDto<T> {
 
     private Long productId;
     private String title;
-    private String ownerWebToken;
+    private String ownerToken;
     private LocalDateTime soldAt;
     private Long price;
     private boolean isLiked;

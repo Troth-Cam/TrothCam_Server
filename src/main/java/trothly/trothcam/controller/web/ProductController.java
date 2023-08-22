@@ -47,24 +47,16 @@ public class ProductController {
     }
 
     /* 상품 detail 화면 조회 - 로그인 0*/
-    @GetMapping("/product-detail/{webId}")
-    public BaseResponse<ProductDetailResDto> findProductDetailOn(@PathVariable String webId, @RequestBody ProductReqDto req, @AuthenticationPrincipal Member member) {
-        if(req.getProductId() == null) {
-            throw new BadRequestException("존재하지 않는 상품 아이디 입니다.");
-        }
-
-        ProductDetailResDto res = productService.findProductDetailOn(req, member);
+    @GetMapping("/{webId}/product-detail/{productId}")
+    public BaseResponse<ProductDetailResDto> findProductDetailOn(@PathVariable String webId, @PathVariable Long productId, @AuthenticationPrincipal Member member) {
+        ProductDetailResDto res = productService.findProductDetailOn(productId, member);
         return BaseResponse.onSuccess(res);
     }
 
     /* 상품 detail 화면 조회 - 로그인 X*/
-    @GetMapping("/product-detail")
-    public BaseResponse<ProductDetailResDto> findProductDetail(@RequestBody ProductReqDto req) {
-        if(req.getProductId() == null) {
-            throw new BadRequestException("존재하지 않는 상품 아이디 입니다.");
-        }
-
-        ProductDetailResDto res = productService.findProductDetail(req);
+    @GetMapping("/product-detail/{productId}")
+    public BaseResponse<ProductDetailResDto> findProductDetail(@PathVariable Long productId) {
+        ProductDetailResDto res = productService.findProductDetail(productId);
         return BaseResponse.onSuccess(res);
     }
 

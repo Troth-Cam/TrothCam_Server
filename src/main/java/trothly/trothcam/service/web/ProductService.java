@@ -99,10 +99,10 @@ public class ProductService {
 
     /* 상품 detail 화면 조회 - 로그인 0 */
     @Transactional
-    public ProductDetailResDto findProductDetailOn(ProductReqDto req, Member member) {
+    public ProductDetailResDto findProductDetailOn(Long productId, Member member) {
         Boolean liked = false;
 
-        Product product = productRepository.findById(req.getProductId()).orElseThrow(
+        Product product = productRepository.findById(productId).orElseThrow(
                 () -> new BaseException(PRODUCT_IS_NOT_FOUND)
         );
 
@@ -121,10 +121,10 @@ public class ProductService {
         // 조회수 갱신
         product.updateViews(product.getViews() + 1);
 
-        Long likes = likeProductRepository.countByProductId(req.getProductId());
+        Long likes = likeProductRepository.countByProductId(productId);
 
         //좋아요 여부
-        Optional<LikeProduct> isLiked = likeProductRepository.findByProductIdAndMemberId(req.getProductId(), member.getId());
+        Optional<LikeProduct> isLiked = likeProductRepository.findByProductIdAndMemberId(productId, member.getId());
 
         if(isLiked.isPresent()) {
             liked = true;
@@ -132,19 +132,19 @@ public class ProductService {
             liked = false;
         }
 
-        List<HistoryDto> historyDto = historyService.findAllHistory(req);
+        List<HistoryDto> historyDto = historyService.findAllHistory(productId);
 
-        return new ProductDetailResDto(req.getProductId(), product.getImage().getId(), findOwner.getWebToken(), findAuthorship.getWebToken(), product.getTitle(),
+        return new ProductDetailResDto(productId, product.getImage().getId(), findOwner.getWebToken(), findAuthorship.getWebToken(), product.getTitle(),
                 product.getTags(), product.getPrice(), product.getDescription(),product.getViews(), likes, product.getPublicYn(), product.getCreatedAt(),
                 product.getLastModifiedAt(), liked, historyDto);
     }
 
     /* 상품 detail 화면 조회 - 로그인 x */
     @Transactional
-    public ProductDetailResDto findProductDetail(ProductReqDto req) {
+    public ProductDetailResDto findProductDetail(Long productId) {
         Boolean liked = false;
 
-        Product product = productRepository.findById(req.getProductId()).orElseThrow(
+        Product product = productRepository.findById(productId).orElseThrow(
                 () -> new BaseException(PRODUCT_IS_NOT_FOUND)
         );
 
@@ -163,11 +163,11 @@ public class ProductService {
         // 조회수 갱신
         product.updateViews(product.getViews() + 1);
 
-        Long likes = likeProductRepository.countByProductId(req.getProductId());
+        Long likes = likeProductRepository.countByProductId(productId);
 
-        List<HistoryDto> historyDto = historyService.findAllHistory(req);
+        List<HistoryDto> historyDto = historyService.findAllHistory(productId);
 
-        return new ProductDetailResDto(req.getProductId(), product.getImage().getId(), findOwner.getWebToken(), findAuthorship.getWebToken(), product.getTitle(),
+        return new ProductDetailResDto(productId, product.getImage().getId(), findOwner.getWebToken(), findAuthorship.getWebToken(), product.getTitle(),
                 product.getTags(), product.getPrice(), product.getDescription(),product.getViews(), likes, product.getPublicYn(), product.getCreatedAt(),
                 product.getLastModifiedAt(), liked, historyDto);
     }
