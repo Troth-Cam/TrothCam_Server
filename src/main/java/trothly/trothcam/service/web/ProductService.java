@@ -264,13 +264,19 @@ public class ProductService {
     @Transactional
     public ProductsPagingListResDto getProductsLikedTop(int page, Member member) {
         try {
+            log.info("service 들어옴");
             PageRequest pageRequest = PageRequest.of(page, 8);
+            log.info("pageRequest 멀라");
             Page<ProductRepository.ProductTop> productTops = productRepository.findRankPagingDto(pageRequest);
+            log.info("productTops 조회");
             List<ProductPagingResDto> topPagingLikedDto = productTops.stream()
                     .map(t -> {
                         Member owner = memberRepository.findById(t.getBuyerId()).orElseThrow(() -> new BaseException(MEMBER_NOT_FOUND));
+                        log.info("멤버 받아옴");
                         Image image = imageRepository.findById(t.getImageId()).orElseThrow(() -> new BaseException(IMAGE_NOT_FOUND));
+                        log.info("이미지 받아옴");
                         Optional<LikeProduct> like = likeProductRepository.findByProductIdAndMemberId(t.getProductId(), member.getId());
+                        log.info("좋아요 검사함");
 
                         boolean liked = false;
                         if(like.isPresent()) {
@@ -279,6 +285,7 @@ public class ProductService {
                             liked = false;
                         }
 
+                        log.info("리턴 직전");
                         return new ProductPagingResDto(t.getHistoryId(), t.getProductId(), owner.getWebId(), owner.getWebToken(), owner.getName(),
                                 image.getMember().getWebId(), image.getMember().getWebToken(), t.getTitle(), t.getTags(), image.getImageUrl(),
                                 t.getPrice(), t.getSoldAt(), liked);
