@@ -1,6 +1,7 @@
 package trothly.trothcam.controller.web;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import trothly.trothcam.domain.member.Member;
@@ -14,6 +15,7 @@ import trothly.trothcam.service.web.CertificateService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/products")
