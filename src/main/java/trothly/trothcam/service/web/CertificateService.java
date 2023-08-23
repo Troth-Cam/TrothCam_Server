@@ -3,6 +3,7 @@ package trothly.trothcam.service.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import trothly.trothcam.domain.history.History;
 import trothly.trothcam.domain.history.HistoryRepository;
 import trothly.trothcam.domain.image.Image;
@@ -36,14 +37,21 @@ public class CertificateService {
     private final HistoryRepository historyRepository;
 
     // 공개 인증서 비공개 인증서로 변환 (비공개하기[판매취소] 클릭 시)
+//    {
+//        "isSuccess": false,
+//            "code": 500,
+//            "message": "Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; nested exception is java.lang.NumberFormatException: For input string: \"undefined\""
+//    }
+    @Transactional
     public List<ProductDto> getPrivateCertificates(Member member, Long productId) {
+        log.info("서비스 드루옴");
         Optional<Product> getProduct = productRepository.findById(productId);
         if(getProduct.isEmpty())
             throw new BaseException(ErrorCode.PRODUCT_NOT_FOUND);
 
         Product product = getProduct.get();
         product.updatePublicYn(PublicYn.N);   // 1. 해당 인증서 비공개로 전환
-        productRepository.save(product);
+        // productRepository.save(product);
 
         List<Product> productList = productRepository.findAllByMemberAndPublicYn(member, PublicYn.N);   // 2. 비공개 리스트 조회
         List<ProductDto> productDtoList = productList.stream()
@@ -55,10 +63,11 @@ public class CertificateService {
                     Optional<LikeProduct> getLikeProduct = likeProductRepository.findByProductAndMember(p, p.getMember());
                     boolean isLiked = getLikeProduct.isPresent();
 
+                    log.info("잘 됨요");
                     return new ProductDto(p, webToken, isLiked);
                 })
                 .collect(Collectors.toList());
-
+        log.info("리턴 직전");
         return productDtoList;
     }
 
